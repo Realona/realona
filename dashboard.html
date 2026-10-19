@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Seller Dashboard - Realona</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .dash-card { background: #161b22; border: 1px solid #30363d; padding: 15px; border-radius: 10px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .badge-active { background: #238636; color: #fff; padding: 3px 8px; border-radius: 12px; font-size: 11px; }
+        .badge-sold { background: #8b949e; color: #fff; padding: 3px 8px; border-radius: 12px; font-size: 11px; }
+        .btn-action { background: #21262d; border: 1px solid #30363d; color: #c9d1d9; padding: 6px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; margin-left: 5px; }
+        .btn-delete { background: #da3633; color: #fff; border: none; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="sell.html">Sell Account</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="wallet.html">Wallet</a>
+        <a href="about.html">About</a>
+    </nav>
+    <div class="sell-container">
+        <h2>Seller Dashboard</h2>
+        <p style="color:#8b949e; margin-bottom: 20px;">Manage your active listings and sales status.</p>
+
+        <div id="listingsList">
+            <!-- Listings populate dynamically -->
+        </div>
+    </div>
+
+    <script>
+        function loadDashboard() {
+            let list = JSON.parse(localStorage.getItem('realonaListings') || '[]');
+            let container = document.getElementById('listingsList');
+
+            if (list.length === 0) {
+                container.innerHTML = `<div style="text-align:center; color:#8b949e; padding: 40px 0;">You have no accounts listed for sale yet.<br><br><a href="sell.html" class="btn-escrow" style="text-decoration:none; display:inline-block;">+ Create a Listing</a></div>`;
+                return;
+            }
+
+            container.innerHTML = list.map((item, index) => `
+                <div class="dash-card">
+                    <div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <strong>${item.title}</strong>
+                            <span class="${item.status === 'Sold' ? 'badge-sold' : 'badge-active'}">${item.status || 'Active'}</span>
+                        </div>
+                        <p style="font-size:13px; color:#8b949e; margin:4px 0 0 0;">${item.price} • ${item.category}</p>
+                    </div>
+                    <div>
+                        <button class="btn-action" onclick="toggleStatus(${index})">${item.status === 'Sold' ? 'Mark Active' : 'Mark Sold'}</button>
+                        <button class="btn-action btn-delete" onclick="deleteListing(${index})">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleStatus(index) {
+            let list = JSON.parse(localStorage.getItem('realonaListings') || '[]');
+            list[index].status = list[index].status === 'Sold' ? 'Active' : 'Sold';
+            localStorage.setItem('realonaListings', JSON.stringify(list));
+            loadDashboard();
+        }
+
+        function deleteListing(index) {
+            if (confirm('Are you sure you want to delete this listing?')) {
+                let list = JSON.parse(localStorage.getItem('realonaListings') || '[]');
+                list.splice(index, 1);
+                localStorage.setItem('realonaListings', JSON.stringify(list));
+                loadDashboard();
+            }
+        }
+
+        loadDashboard();
+    </script>
+</body>
+</html>
