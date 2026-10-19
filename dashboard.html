@@ -13,13 +13,17 @@
         .stat-card .val { font-size: 22px; font-weight: bold; color: #c9d1d9; margin-bottom: 12px; }
         .stat-card .btn-link { background: #21262d; border: 1px solid #30363d; color: #58a6ff; padding: 6px 10px; border-radius: 6px; font-size: 12px; text-align: center; text-decoration: none; display: block; }
         
-        .quick-actions { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 15px; margin-bottom: 20px; }
-        .quick-actions h3 { font-size: 15px; color: #c9d1d9; margin-bottom: 12px; }
+        .section-box { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 15px; margin-bottom: 20px; }
+        .section-box h3 { font-size: 15px; color: #c9d1d9; margin-bottom: 12px; }
+        
         .actions-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
         .action-btn { background: #21262d; border: 1px solid #30363d; color: #c9d1d9; padding: 10px 6px; border-radius: 8px; font-size: 11px; text-align: center; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 4px; }
         .action-btn.primary { background: #238636; color: #fff; border-color: #238636; }
 
-        .recent-box { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 20px; text-align: center; }
+        .dash-item { background: #0d1117; border: 1px solid #30363d; padding: 12px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .btn-sm { background: #21262d; border: 1px solid #30363d; color: #c9d1d9; padding: 5px 8px; border-radius: 5px; font-size: 11px; cursor: pointer; text-decoration: none; }
+        .btn-del { background: #da3633; color: #fff; border: none; }
+        .badge-act { background: #238636; color: #fff; padding: 2px 6px; border-radius: 10px; font-size: 10px; }
     </style>
 </head>
 <body>
@@ -36,7 +40,6 @@
             <p style="color: #8b949e; font-size: 13px;">Manage your trades, listings, and wallet from here.</p>
         </div>
 
-        <!-- 4 Metric Cards Grid -->
         <div class="stats-grid">
             <div class="stat-card">
                 <h4>Wallet Balance</h4>
@@ -46,12 +49,12 @@
             <div class="stat-card">
                 <h4>Active Listings</h4>
                 <div class="val" id="activeListingsCount">0</div>
-                <a href="dashboard.html" class="btn-link">View Listings</a>
+                <a href="#myListingsSection" class="btn-link">View Listings</a>
             </div>
             <div class="stat-card">
                 <h4>Active Trades</h4>
                 <div class="val" id="activeTradesCount">0</div>
-                <a href="dashboard.html" class="btn-link">View Trades</a>
+                <a href="#recentTradesSection" class="btn-link">View Trades</a>
             </div>
             <div class="stat-card">
                 <h4>Completed Trades</h4>
@@ -59,8 +62,14 @@
                 <span style="font-size: 11px; color: #8b949e; text-align: center; padding-top: 6px;">All time</span>
             </div>
         </div>
+
+        <!-- Managed Listings Section -->
+        <div id="myListingsSection" class="section-box">
+            <h3>📦 Your Active Listings</h3>
+            <div id="myListingsContainer"></div>
+        </div>
         <!-- Quick Actions -->
-        <div class="quick-actions">
+        <div class="section-box">
             <h3>Quick Actions</h3>
             <div class="actions-grid">
                 <a href="sell.html" class="action-btn primary">➕ New Listing</a>
@@ -72,46 +81,70 @@
             </div>
         </div>
 
-        <!-- Recent Trades / Activity Section -->
-        <div class="recent-box">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h3 style="font-size:15px; color:#c9d1d9; margin:0;">Recent Trades</h3>
+        <!-- Recent Trades -->
+        <div id="recentTradesSection" class="section-box">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <h3 style="margin:0;">Recent Trades</h3>
                 <a href="index.html" style="font-size:12px; color:#58a6ff; text-decoration:none;">View all →</a>
             </div>
-            <div id="tradesContainer" style="padding: 20px 0;">
-                <p style="font-size: 14px; color: #8b949e; margin-bottom: 8px;">No trades yet</p>
-                <a href="index.html" style="font-size: 13px; color: #58a6ff; text-decoration:none;">Browse listings to start trading</a>
+            <div id="tradesContainer" style="text-align:center; padding: 10px 0;">
+                <p style="font-size: 13px; color: #8b949e; margin-bottom: 6px;">No active trades yet</p>
+                <a href="index.html" style="font-size: 12px; color: #58a6ff; text-decoration:none;">Browse listings to start trading</a>
             </div>
         </div>
     </div>
 
     <script>
-        // Load Dynamic Data from localStorage
-        let balance = localStorage.getItem('realonaWalletBalance') || '0';
-        document.getElementById('walletBal').innerText = '₦' + Number(balance).toLocaleString();
+        function loadDashboard() {
+            let balance = localStorage.getItem('realonaWalletBalance') || '0';
+            document.getElementById('walletBal').innerText = '₦' + Number(balance).toLocaleString();
 
-        let listings = JSON.parse(localStorage.getItem('realonaListings') || '[]');
-        let activeListings = listings.filter(item => (!item.status || item.status === 'Active'));
-        let soldListings = listings.filter(item => item.status === 'Sold');
-        let escrowListings = listings.filter(item => item.status === 'In Escrow');
+            let listings = JSON.parse(localStorage.getItem('realonaListings') || '[]');
+            let activeListings = listings.filter(item => (!item.status || item.status === 'Active'));
+            let soldListings = listings.filter(item => item.status === 'Sold');
+            let escrowListings = listings.filter(item => item.status === 'In Escrow');
 
-        document.getElementById('activeListingsCount').innerText = activeListings.length;
-        document.getElementById('activeTradesCount').innerText = escrowListings.length;
-        document.getElementById('completedTradesCount').innerText = soldListings.length;
+            document.getElementById('activeListingsCount').innerText = activeListings.length;
+            document.getElementById('activeTradesCount').innerText = escrowListings.length;
+            document.getElementById('completedTradesCount').innerText = soldListings.length;
 
-        if (escrowListings.length > 0 || soldListings.length > 0) {
-            let container = document.getElementById('tradesContainer');
-            let allTrades = [...escrowListings, ...soldListings];
-            container.innerHTML = allTrades.map(t => `
-                <div style="background:#0d1117; border:1px solid #30363d; padding:10px; border-radius:8px; margin-bottom:8px; text-align:left; display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <strong style="font-size:13px; color:#c9d1d9;">${t.title}</strong>
-                        <div style="font-size:11px; color:#8b949e;">${t.price}</div>
+            let listingsContainer = document.getElementById('myListingsContainer');
+            if (listings.length === 0) {
+                listingsContainer.innerHTML = `<p style="font-size:13px; color:#8b949e; text-align:center;">No accounts listed yet. <a href="sell.html" style="color:#58a6ff;">+ Add One</a></p>`;
+            } else {
+                listingsContainer.innerHTML = listings.map((item, index) => `
+                    <div class="dash-item">
+                        <div>
+                            <strong style="font-size:13px; color:#c9d1d9;">${item.title}</strong>
+                            <div style="font-size:11px; color:#8b949e; margin-top:2px;">${item.price} • <span class="badge-act">${item.status || 'Active'}</span></div>
+                        </div>
+                        <div style="display:flex; gap:6px;">
+                            <a href="listing.html?id=${index}" class="btn-sm" style="color:#58a6ff;">View</a>
+                            <button onclick="toggleStatus(${index})" class="btn-sm">${item.status === 'Sold' ? 'Mark Active' : 'Mark Sold'}</button>
+                            <button onclick="deleteListing(${index})" class="btn-sm btn-del">Delete</button>
+                        </div>
                     </div>
-                    <span style="font-size:11px; padding:3px 8px; border-radius:10px; background:${t.status==='Sold'?'#238636':'#d29922'}; color:${t.status==='Sold'?'#fff':'#000'};">${t.status}</span>
-                </div>
-            `).join('');
+                `).join('');
+            }
         }
+
+        function toggleStatus(index) {
+            let list = JSON.parse(localStorage.getItem('realonaListings') || '[]');
+            list[index].status = list[index].status === 'Sold' ? 'Active' : 'Sold';
+            localStorage.setItem('realonaListings', JSON.stringify(list));
+            loadDashboard();
+        }
+
+        function deleteListing(index) {
+            if (confirm('Are you sure you want to delete this listing?')) {
+                let list = JSON.parse(localStorage.getItem('realonaListings') || '[]');
+                list.splice(index, 1);
+                localStorage.setItem('realonaListings', JSON.stringify(list));
+                loadDashboard();
+            }
+        }
+
+        loadDashboard();
     </script>
 </body>
 </html>
