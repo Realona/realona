@@ -230,3 +230,51 @@ cat > sell.html << 'EOF'
     </script>
 </body>
 </html>
+    <script>
+        let selectedPlayers = [];
+
+        function showStep(stepId) {
+            document.querySelectorAll('.sell-step').forEach(el => el.style.display = 'none');
+            document.getElementById(stepId).style.display = 'block';
+            window.scrollTo(0,0);
+        }
+
+        function addPlayer() {
+            const input = document.getElementById('playerInput');
+            const val = input.value.trim();
+            if (val && selectedPlayers.length < 5 && !selectedPlayers.includes(val)) {
+                selectedPlayers.push(val);
+                input.value = '';
+                renderPlayers();
+            }
+        }
+
+        function removePlayer(player) {
+            selectedPlayers = selectedPlayers.filter(p => p !== player);
+            renderPlayers();
+        }
+
+        function renderPlayers() {
+            const container = document.getElementById('playersContainer');
+            container.innerHTML = selectedPlayers.map(p => `
+                <span class="player-tag">
+                    ${p} <span onclick="removePlayer('${p}')" style="cursor:pointer; margin-left:6px; color:#ff7b72;">&times;</span>
+                </span>
+            `).join('');
+        }
+
+        function updateFileName(input) {
+            const fileChosen = document.getElementById('fileChosen');
+            if (input.files && input.files[0]) {
+                fileChosen.textContent = 'Selected: ' + input.files[0].name;
+            }
+        }
+
+        function handleListingSubmit(e) {
+            e.preventDefault();
+            alert('eFootball account listed successfully with ' + selectedPlayers.length + ' featured players!');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
