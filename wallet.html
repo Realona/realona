@@ -3,8 +3,13 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Wallet & Deposit - Realona</title>
+    <title>Wallet - Realona</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .wallet-card { background: #161b22; border: 1px solid #30363d; padding: 20px; border-radius: 12px; margin-bottom: 20px; }
+        .balance-amount { font-size: 28px; font-weight: bold; color: #58a6ff; margin: 10px 0; }
+        .bank-info { background: #21262d; padding: 12px; border-radius: 8px; font-size: 14px; margin-top: 10px; border-left: 4px solid #238636; }
+    </style>
 </head>
 <body>
     <nav>
@@ -13,42 +18,82 @@
         <a href="wallet.html">Wallet</a>
         <a href="about.html">About</a>
     </nav>
-    
-    <div class="sell-container" style="max-width: 600px;">
-        <header class="hero" style="padding: 20px 0;">
-            <h1>Escrow Wallet</h1>
-            <p>Fund your wallet securely via Moniepoint transfer.</p>
-        </header>
-
-        <div class="form-box" style="margin-bottom: 20px; text-align: center; background: linear-gradient(135deg, #161b22, #1f6feb22);">
-            <p style="color: #8b949e; font-size: 0.9rem; margin: 0;">AVAILABLE BALANCE</p>
-            <h1 style="color: #58a6ff; font-size: 2.5rem; margin: 5px 0;" id="walletBalance">₦0.00</h1>
+    <div class="sell-container">
+        <h2>Escrow Wallet & Funds</h2>
+        
+        <div class="wallet-card">
+            <p style="color:#8b949e;">Available Escrow Balance</p>
+            <div class="balance-amount" id="walletBalance">₦0.00</div>
+            <p style="font-size: 13px; color: #8b949e;">Funds are held securely in escrow until trade completion and verification.</p>
         </div>
 
-        <div class="form-box">
-            <h3 style="margin-top: 0; color: #58a6ff;">🏦 Moniepoint Deposit Account</h3>
-            <p style="color: #8b949e; font-size: 0.9rem;">Make a transfer to the dedicated account number below. Your wallet will be credited automatically once confirmed.</p>
-            
-            <div style="background: #0d1117; padding: 15px; border-radius: 8px; border: 1px solid #30363d; margin: 15px 0;">
-                <p style="margin: 0; color: #8b949e; font-size: 0.85rem;">Account Number</p>
-                <h2 style="margin: 5px 0; color: #3fb950; letter-spacing: 1px;" id="accountNumber">9160385331</h2>
-                <p style="margin: 0; color: #8b949e; font-size: 0.85rem;">Bank: <b>Moniepoint MFB</b></p>
-                <p style="margin: 5px 0 0 0; color: #8b949e; font-size: 0.85rem;">Beneficiary: <b>Realona Escrow System</b></p>
+        <div class="wallet-card">
+            <h3>🏦 Manual Moniepoint Deposit</h3>
+            <p style="font-size: 14px; color: #c9d1d9; margin-top: 5px;">Transfer funds to the official platform escrow account below to fund your wallet:</p>
+            <div class="bank-info">
+                <strong>Bank:</strong> Moniepoint MFB<br>
+                <strong>Account Number:</strong> 9160385331<br>
+                <strong>Account Name:</strong> Realona Escrow Services
             </div>
 
-            <button onclick="copyAccount()" class="btn-escrow" style="background: #21262d; border: 1px solid #30363d; color: #58a6ff;">📋 Copy Account Number</button>
+            <form onsubmit="submitDeposit(event)" style="margin-top: 15px;">
+                <input type="number" id="depositAmount" placeholder="Amount Sent (₦)" class="search-bar" required style="margin-bottom: 10px;">
+                <input type="text" id="depositRef" placeholder="Transaction Reference / Teller ID" class="search-bar" required style="margin-bottom: 10px;">
+                <button type="submit" class="btn-escrow" style="width:100%;">Submit Deposit for Verification</button>
+            </form>
+        </div>
+        <div class="wallet-card">
+            <h3>📜 Transaction History</h3>
+            <div id="txList" style="margin-top: 10px; font-size: 14px; color: #8b949e;">
+                No recent transactions found.
+            </div>
         </div>
     </div>
-    <script>
-        window.addEventListener('DOMContentLoaded', () => {
-            localStorage.setItem('realonaWalletBalance', '0.00');
-            document.getElementById('walletBalance').textContent = '₦0.00';
-        });
 
-        function copyAccount() {
-            const accNum = document.getElementById('accountNumber').textContent;
-            navigator.clipboard.writeText(accNum);
-            alert('Account number copied to clipboard: ' + accNum);
+    <script>
+        // Initialize or load wallet balance
+        let balance = Number(localStorage.getItem('realonaWalletBalance') || 0);
+        document.getElementById('walletBalance').innerText = '₦' + balance.toLocaleString();
+
+        let txs = JSON.parse(localStorage.getItem('realonaTransactions') || '[]');
+        renderTransactions();
+
+        function submitDeposit(e) {
+            e.preventDefault();
+            let amt = Number(document.getElementById('depositAmount').value);
+            let ref = document.getElementById('depositRef').value;
+
+            let newTx = {
+                type: 'Deposit (Pending Verification)',
+                amount: '₦' + amt.toLocaleString(),
+                ref: ref,
+                date: new Date().toLocaleDateString()
+            };
+
+            txs.unshift(newTx);
+            localStorage.setItem('realonaTransactions', JSON.stringify(txs));
+            
+            alert('Deposit submitted successfully! Verification takes 5-10 minutes.');
+            document.getElementById('depositAmount').value = '';
+            document.getElementById('depositRef').value = '';
+            renderTransactions();
+        }
+
+        function renderTransactions() {
+            let container = document.getElementById('txList');
+            if (txs.length === 0) {
+                container.innerHTML = 'No recent transactions found.';
+                return;
+            }
+            container.innerHTML = txs.map(t => `
+                <div style="background:#21262d; padding:10px; border-radius:6px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <strong>${t.type}</strong><br>
+                        <span style="font-size:12px; color:#8b949e;">Ref: ${t.ref} • ${t.date}</span>
+                    </div>
+                    <div style="color: #2ea043; font-weight:bold;">${t.amount}</div>
+                </div>
+            `).join('');
         }
     </script>
 </body>
