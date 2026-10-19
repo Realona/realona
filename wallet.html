@@ -23,7 +23,6 @@
         <div class="form-box" style="margin-bottom: 20px; text-align: center; background: linear-gradient(135deg, #161b22, #1f6feb22);">
             <p style="color: #8b949e; font-size: 0.9rem; margin: 0;">AVAILABLE BALANCE</p>
             <h1 style="color: #58a6ff; font-size: 2.5rem; margin: 5px 0;" id="walletBalance">₦0.00</h1>
-            <button onclick="simulateDeposit()" class="btn-escrow" style="max-width: 200px; margin: 10px auto 0 auto;">Simulate Deposit</button>
         </div>
 
         <div class="form-box">
@@ -42,7 +41,7 @@
     </div>
     <script>
         window.addEventListener('DOMContentLoaded', () => {
-            const savedBalance = localStorage.getItem('realonaWalletBalance') || '15,000.00';
+            const savedBalance = localStorage.getItem('realonaWalletBalance') || '0.00';
             document.getElementById('walletBalance').textContent = '₦' + savedBalance;
         });
 
@@ -50,23 +49,6 @@
             const accNum = document.getElementById('accountNumber').textContent;
             navigator.clipboard.writeText(accNum);
             alert('Account number copied to clipboard: ' + accNum);
-        }
-
-        function simulateDeposit() {
-            const amountStr = prompt('Enter amount to deposit (₦):', '5000');
-            if (amountStr) {
-                const amount = parseFloat(amountStr);
-                if (!isNaN(amount) && amount > 0) {
-                    let current = parseFloat((localStorage.getItem('realonaWalletBalance') || '15000').replace(/,/g, ''));
-                    current += amount;
-                    const newBal = current.toLocaleString('en-US', { minimumFractionDigits: 2 });
-                    localStorage.setItem('realonaWalletBalance', newBal);
-                    document.getElementById('walletBalance').textContent = '₦' + newBal;
-                    alert('Deposit of ₦' + amount.toLocaleString() + ' generated and credited successfully!');
-                } else {
-                    alert('Please enter a valid amount.');
-                }
-            }
         }
     </script>
 </body>
