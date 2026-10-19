@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Wallet & Deposit - Realona</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="sell.html">Sell Account</a>
+        <a href="wallet.html">Wallet</a>
+        <a href="about.html">About</a>
+    </nav>
+    
+    <div class="sell-container" style="max-width: 600px;">
+        <header class="hero" style="padding: 20px 0;">
+            <h1>Escrow Wallet</h1>
+            <p>Fund your wallet securely via Moniepoint transfer.</p>
+        </header>
+
+        <div class="form-box" style="margin-bottom: 20px; text-align: center; background: linear-gradient(135deg, #161b22, #1f6feb22);">
+            <p style="color: #8b949e; font-size: 0.9rem; margin: 0;">AVAILABLE BALANCE</p>
+            <h1 style="color: #58a6ff; font-size: 2.5rem; margin: 5px 0;" id="walletBalance">₦0.00</h1>
+            <button onclick="simulateDeposit()" class="btn-escrow" style="max-width: 200px; margin: 10px auto 0 auto;">Simulate Deposit</button>
+        </div>
+
+        <div class="form-box">
+            <h3 style="margin-top: 0; color: #58a6ff;">🏦 Moniepoint Deposit Account</h3>
+            <p style="color: #8b949e; font-size: 0.9rem;">Make a transfer to the dedicated account number below. Your wallet will be credited automatically once confirmed.</p>
+            
+            <div style="background: #0d1117; padding: 15px; border-radius: 8px; border: 1px solid #30363d; margin: 15px 0;">
+                <p style="margin: 0; color: #8b949e; font-size: 0.85rem;">Account Number</p>
+                <h2 style="margin: 5px 0; color: #3fb950; letter-spacing: 1px;" id="accountNumber">9160385331</h2>
+                <p style="margin: 0; color: #8b949e; font-size: 0.85rem;">Bank: <b>Moniepoint MFB</b></p>
+                <p style="margin: 5px 0 0 0; color: #8b949e; font-size: 0.85rem;">Beneficiary: <b>Realona Escrow System</b></p>
+            </div>
+
+            <button onclick="copyAccount()" class="btn-escrow" style="background: #21262d; border: 1px solid #30363d; color: #58a6ff;">📋 Copy Account Number</button>
+        </div>
+    </div>
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedBalance = localStorage.getItem('realonaWalletBalance') || '15,000.00';
+            document.getElementById('walletBalance').textContent = '₦' + savedBalance;
+        });
+
+        function copyAccount() {
+            const accNum = document.getElementById('accountNumber').textContent;
+            navigator.clipboard.writeText(accNum);
+            alert('Account number copied to clipboard: ' + accNum);
+        }
+
+        function simulateDeposit() {
+            const amountStr = prompt('Enter amount to deposit (₦):', '5000');
+            if (amountStr) {
+                const amount = parseFloat(amountStr);
+                if (!isNaN(amount) && amount > 0) {
+                    let current = parseFloat((localStorage.getItem('realonaWalletBalance') || '15000').replace(/,/g, ''));
+                    current += amount;
+                    const newBal = current.toLocaleString('en-US', { minimumFractionDigits: 2 });
+                    localStorage.setItem('realonaWalletBalance', newBal);
+                    document.getElementById('walletBalance').textContent = '₦' + newBal;
+                    alert('Deposit of ₦' + amount.toLocaleString() + ' generated and credited successfully!');
+                } else {
+                    alert('Please enter a valid amount.');
+                }
+            }
+        }
+    </script>
+</body>
+</html>
