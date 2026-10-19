@@ -3,8 +3,14 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Realona Marketplace</title>
+    <title>Realona Exchange - Escrow Marketplace</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .filter-section { background: #161b22; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #30363d; }
+        .filter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .tab-btn { background: #21262d; border: 1px solid #30363d; color: #8b949e; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; }
+        .tab-btn.active { background: #238636; color: #fff; border-color: #238636; }
+    </style>
 </head>
 <body>
     <nav>
@@ -14,123 +20,81 @@
         <a href="wallet.html">Wallet</a>
         <a href="about.html">About</a>
     </nav>
-    <header class="hero">
-        <h1>Trade Accounts Without Risk.</h1>
-        <p>Nigeria's trusted marketplace for eFootball & social media accounts.</p>
-        <input type="text" id="searchInput" placeholder="Search accounts..." class="search-bar" oninput="renderListings()">
-    </header>
-
-    <div style="max-width: 1000px; margin: 0 auto; padding: 0 15px;">
-        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-            <button class="tab active" onclick="setCat('All', this)">All</button>
-            <button class="tab" onclick="setCat('eFootball', this)">eFootball</button>
-            <button class="tab" onclick="setCat('Social Media', this)">Social Media</button>
-        </div>
-
-        <div class="form-box" style="margin-bottom: 20px;">
-            <div style="display:flex; justify-between: space-between; align-items:center;">
-                <h3 style="margin:0; font-size: 0.95rem;">⚙️ Filters</h3>
-                <button onclick="resetFilters()" style="background:none; border:none; color:#8b949e; cursor:pointer;">Reset</button>
+    <div class="sell-container">
+        <h2>Marketplace Listings</h2>
+        
+        <div class="filter-section">
+            <div style="display:flex; gap:10px; margin-bottom:12px;">
+                <button id="tabEfootball" class="tab-btn active" onclick="setCategory('eFootball')">🎮 eFootball</button>
+                <button id="tabSocial" class="tab-btn" onclick="setCategory('Social Media')">📱 Social Media</button>
             </div>
+            <input type="text" id="searchInput" placeholder="Search accounts..." class="search-bar" onkeyup="renderMarketplace()">
             
-            <!-- eFootball Filters -->
-            <div id="efootballFilters" class="row-group" style="margin-top: 10px;">
-                <select id="filterDiv" class="search-bar" onchange="renderListings()">
-                    <option value="">Any Division</option>
+            <div id="efootballFilters" class="filter-grid">
+                <select id="divFilter" class="search-bar" onchange="renderMarketplace()">
+                    <option value="">All Divisions</option>
                     <option>Division 1</option>
                     <option>Division 2</option>
                     <option>Division 3</option>
                 </select>
-                <input type="number" id="minRating" placeholder="Min Rating (e.g. 3000)" class="search-bar" oninput="renderListings()">
-                <input type="number" id="maxRating" placeholder="Max Rating (e.g. 3600)" class="search-bar" oninput="renderListings()">
-                <input type="text" id="filterPlayer" placeholder="Player Name (e.g. Mbappe)" class="search-bar" oninput="renderListings()">
-            </div>
-
-            <!-- Social Media Filters -->
-            <div id="socialFilters" class="row-group" style="margin-top: 10px; display: none;">
-                <select id="filterPlatform" class="search-bar" onchange="renderListings()">
-                    <option value="">All Platforms</option>
-                    <option>Instagram</option>
-                    <option>TikTok</option>
-                    <option>YouTube</option>
-                    <option>Twitter/X</option>
-                    <option>Facebook</option>
-                </select>
+                <input type="number" id="ratingFilter" placeholder="Min Rating (e.g. 3000)" class="search-bar" onkeyup="renderMarketplace()">
             </div>
         </div>
+
+        <div id="listingsGrid" class="listings-grid"></div>
     </div>
-
-    <main class="listings-grid" id="listingsContainer"></main>
     <script>
-        let curCat = 'All';
+        let currentCat = 'eFootball';
 
-        function setCat(cat, btn) {
-            curCat = cat;
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            btn.classList.add('active');
-            
-            document.getElementById('efootballFilters').style.display = (cat === 'Social Media') ? 'none' : 'flex';
-            document.getElementById('socialFilters').style.display = (cat === 'eFootball') ? 'none' : 'flex';
-            renderListings();
+        function setCategory(cat) {
+            currentCat = cat;
+            document.getElementById('tabEfootball').classList.toggle('active', cat === 'eFootball');
+            document.getElementById('tabSocial').classList.toggle('active', cat === 'Social Media');
+            document.getElementById('efootballFilters').style.display = cat === 'eFootball' ? 'grid' : 'none';
+            renderMarketplace();
         }
 
-        function resetFilters() {
-            document.getElementById('searchInput').value = '';
-            document.getElementById('filterDiv').value = '';
-            document.getElementById('minRating').value = '';
-            document.getElementById('maxRating').value = '';
-            document.getElementById('filterPlayer').value = '';
-            document.getElementById('filterPlatform').value = '';
-            setCat('All', document.querySelectorAll('.tab')[0]);
-        }
+        function renderMarketplace() {
+            let list = JSON.parse(localStorage.getItem('realonaListings') || '[]');
+            let search = document.getElementById('searchInput').value.toLowerCase();
+            let div = document.getElementById('divFilter').value;
+            let minRating = Number(document.getElementById('ratingFilter').value || 0);
 
-        function renderListings() {
-            const container = document.getElementById('listingsContainer');
-            const search = document.getElementById('searchInput').value.toLowerCase();
-            const div = document.getElementById('filterDiv').value.toLowerCase();
-            const minR = parseFloat(document.getElementById('minRating').value) || 0;
-            const maxR = parseFloat(document.getElementById('maxRating').value) || 99999;
-            const player = document.getElementById('filterPlayer').value.toLowerCase();
-            const plat = document.getElementById('filterPlatform').value.toLowerCase();
-
-            let all = JSON.parse(localStorage.getItem('realonaListings') || '[]');
-            
-            let filtered = all.filter(item => {
-                let cat = item.category || 'eFootball';
-                if (curCat !== 'All' && cat !== curCat) return false;
-
-                let txt = (item.title + ' ' + item.details + ' ' + item.price).toLowerCase();
-                if (search && !txt.includes(search)) return false;
-
-                if (cat === 'eFootball') {
-                    if (div && !txt.includes(div)) return false;
-                    if (player && !txt.includes(player)) return false;
-                    let ovr = parseFloat(item.details) || 0;
-                    if (ovr && (ovr < minR || ovr > maxR)) return false;
-                } else if (cat === 'Social Media') {
-                    if (plat && !txt.includes(plat)) return false;
+            let filtered = list.filter((item, index) => {
+                item.originalIndex = index;
+                let matchCat = item.category === currentCat || (!item.category && currentCat === 'eFootball');
+                let matchSearch = item.title.toLowerCase().includes(search) || item.details.toLowerCase().includes(search);
+                
+                if (currentCat === 'eFootball') {
+                    let matchDiv = !div || (item.tag && item.tag.includes(div));
+                    let ovrMatch = item.details.match(/(\d+)\s*OVR/i);
+                    let ovrVal = ovrMatch ? Number(ovrMatch[1]) : 0;
+                    let matchRating = !minRating || ovrVal >= minRating;
+                    return matchCat && matchSearch && matchDiv && matchRating;
                 }
-                return true;
+                return matchCat && matchSearch;
             });
 
-            if (!filtered.length) {
-                container.innerHTML = `<p style="grid-column:1/-1; text-align:center; color:#8b949e;">No accounts match your filters.</p>`;
+            let container = document.getElementById('listingsGrid');
+            if (filtered.length === 0) {
+                container.innerHTML = `<p style="color:#8b949e; text-align:center; width:100%; grid-column: 1/-1;">No listings available matching filters.</p>`;
                 return;
             }
 
-            container.innerHTML = filtered.map((item, idx) => `
-                <div class="card clickable" onclick="window.location.href='listing.html?id=${idx}'">
-                    ${item.image ? `<img src="${item.image}" style="width:100%; height:140px; object-fit:cover; border-radius:6px; margin-bottom:8px;">` : ''}
-                    <span class="tag">${item.tag || item.category}</span>
+            container.innerHTML = filtered.map(item => `
+                <div class="card">
+                    ${item.image ? `<img src="${item.image}" style="width:100%; height:160px; object-fit:cover; border-radius:8px; margin-bottom:10px;">` : ''}
                     <h3>${item.title}</h3>
-                    <p class="price">${item.price}</p>
                     <p class="details">${item.details}</p>
-                    <button class="btn-escrow">View Details</button>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+                        <span style="font-weight:bold; color:#58a6ff;">${item.price}</span>
+                        <a href="buy.html?id=${item.originalIndex}" class="btn-escrow" style="text-decoration:none;">Buy via Escrow</a>
+                    </div>
                 </div>
             `).join('');
         }
 
-        window.addEventListener('DOMContentLoaded', renderListings);
+        renderMarketplace();
     </script>
 </body>
 </html>
