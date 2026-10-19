@@ -11,10 +11,10 @@
         .img-container img { width: 100%; height: 100%; object-fit: contain; }
         .img-hint { position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.8); color: #fff; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; }
         
-        /* Lightbox modal */
         .lightbox { display: none; position: fixed; z-index: 999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); justify-content: center; align-items: center; }
         .lightbox img { max-width: 98%; max-height: 90%; border-radius: 8px; object-fit: contain; }
         .lightbox-close { position: absolute; top: 20px; right: 20px; color: #fff; font-size: 32px; cursor: pointer; background: rgba(0,0,0,0.5); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .btn-buy-now { background: #238636; color: #fff; border: none; width: 100%; padding: 14px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; text-decoration: none; display: block; text-align: center; margin-top: 15px; }
     </style>
 </head>
 <body>
@@ -37,10 +37,10 @@
             <h2 id="listingTitle">Loading...</h2>
             <p id="listingDetails" style="color:#8b949e; margin: 6px 0 12px 0;"></p>
             
-            <div style="font-size:24px; font-weight:bold; color:#58a6ff;" id="listingPrice">₦0</div>
+            <div style="font-size:26px; font-weight:bold; color:#58a6ff;" id="listingPrice">₦0</div>
 
-            <!-- Replaced blue escrow button with direct action or secondary action if needed -->
-            <button onclick="openLightbox()" class="btn-escrow" style="width:100%; margin-top:15px; padding:12px; background:#21262d; border:1px solid #30363d; color:#58a6ff;">View Full Screenshot</button>
+            <!-- Green Buy via Escrow Button -->
+            <a id="buyEscrowBtn" href="#" class="btn-buy-now">Buy via Escrow</a>
         </div>
     </div>
     <!-- Lightbox Modal -->
@@ -60,6 +60,7 @@
             document.getElementById('listingTitle').innerText = item.title;
             document.getElementById('listingDetails').innerText = item.details;
             document.getElementById('listingPrice').innerText = item.price;
+            document.getElementById('buyEscrowBtn').href = 'buy.html?id=' + id;
 
             if (item.image) {
                 document.getElementById('listingImg').src = item.image;
