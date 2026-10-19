@@ -5,6 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Sell Account - Realona</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .file-upload-wrapper {
+            position: relative;
+            width: 100%;
+            margin-bottom: 12px;
+        }
+        .file-upload-btn {
+            width: 100%;
+            padding: 12px;
+            background: #21262d;
+            border: 1px dashed #30363d;
+            border-radius: 8px;
+            color: #c9d1d9;
+            text-align: center;
+            font-size: 14px;
+            cursor: pointer;
+            display: block;
+            box-sizing: border-box;
+        }
+        .file-upload-wrapper input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
     <nav>
@@ -32,7 +61,7 @@
             </div>
         </div>
 
-        <!-- Social Media Option: Single vs Multiple -->
+        <!-- Social Media Option -->
         <div id="step-social-type" class="sell-step" style="display:none;">
             <button onclick="showStep('step-category')" class="btn-back">← Back</button>
             <h2>Social Media Account</h2>
@@ -64,7 +93,11 @@
                 </select>
                 <input type="number" id="squadRating" placeholder="Squad Rating (e.g. 3500)" class="search-bar" required style="margin-bottom:10px;">
                 <input type="number" id="price" placeholder="Price (₦)" class="search-bar" required style="margin-bottom:10px;">
-                <input type="file" id="imgFile" accept="image/*" onchange="handleImg(this)">
+                
+                <div class="file-upload-wrapper">
+                    <div class="file-upload-btn" id="efootballFileLabel">📷 Upload Screenshot / Proof</div>
+                    <input type="file" id="imgFile" accept="image/*" onchange="handleImg(this, 'efootballFileLabel')">
+                </div>
                 
                 <h3 style="margin-top:15px;">Account Credentials</h3>
                 <input type="email" id="konamiId" placeholder="Konami ID / Email" class="search-bar" required style="margin-bottom:10px;">
@@ -79,6 +112,7 @@
         <!-- Social Media Form -->
         <div id="step-social-form" class="sell-step" style="display:none;">
             <button onclick="showStep('step-social-type')" class="btn-back">← Back</button>
+            Replace/Sell Social Media Account
             <h2>Sell Social Media Account</h2>
             <form onsubmit="handleSubmit(event, 'Social Media')" class="form-box">
                 <select id="socialPlat" class="search-bar" style="margin-bottom:10px;" required>
@@ -88,7 +122,11 @@
                 <input type="text" id="socialHandle" placeholder="Account Handle (@username)" class="search-bar" required style="margin-bottom:10px;">
                 <input type="text" id="socialStats" placeholder="Followers / Engagement Stats" class="search-bar" required style="margin-bottom:10px;">
                 <input type="number" id="socialPrice" placeholder="Price (₦)" class="search-bar" required style="margin-bottom:10px;">
-                <input type="file" id="socialImgFile" accept="image/*" onchange="handleImg(this)">
+                
+                <div class="file-upload-wrapper">
+                    <div class="file-upload-btn" id="socialFileLabel">📷 Upload Screenshot / Proof</div>
+                    <input type="file" id="socialImgFile" accept="image/*" onchange="handleImg(this, 'socialFileLabel')">
+                </div>
 
                 <h3 style="margin-top:15px;">Account Credentials</h3>
                 <input type="email" id="socialEmail" placeholder="Account Email" class="search-bar" required style="margin-bottom:10px;">
@@ -112,8 +150,9 @@
         function renderP() {
             document.getElementById('playersContainer').innerHTML = players.map(p => `<span class="player-tag">${p}</span>`).join(' ');
         }
-        function handleImg(input) {
+        function handleImg(input, labelId) {
             if(input.files && input.files[0]) {
+                document.getElementById(labelId).innerText = "✅ " + input.files[0].name;
                 let r = new FileReader();
                 r.onload = e => imgStr = e.target.result;
                 r.readAsDataURL(input.files[0]);
