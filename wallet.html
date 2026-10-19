@@ -41,8 +41,8 @@
     </div>
     <script>
         window.addEventListener('DOMContentLoaded', () => {
-            const savedBalance = localStorage.getItem('realonaWalletBalance') || '0.00';
-            document.getElementById('walletBalance').textContent = '₦' + savedBalance;
+            localStorage.setItem('realonaWalletBalance', '0.00');
+            document.getElementById('walletBalance').textContent = '₦0.00';
         });
 
         function copyAccount() {
