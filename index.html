@@ -15,51 +15,136 @@
     </nav>
     
     <header class="hero">
-        <h1>Realona Marketplace</h1>
-        <p>Secure Escrow Platform for eFootball & Social Media Accounts</p>
-        <input type="text" placeholder="Search accounts, division, player..." class="search-bar">
+        <h1>Trade Accounts Without Risk.</h1>
+        <p>Realona is Nigeria's trusted marketplace for eFootball & social media accounts with secure escrow.</p>
+        <input type="text" id="searchInput" placeholder="Search accounts, title, player..." class="search-bar" oninput="filterListings()">
     </header>
 
-    <div class="categories">
-        <button class="tab active">All</button>
-        <button class="tab">eFootball</button>
-        <button class="tab">Social Media</button>
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+        <div class="categories" style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <button class="tab active" onclick="setCategory('All', this)">All</button>
+            <button class="tab" onclick="setCategory('eFootball', this)">eFootball</button>
+            <button class="tab" onclick="setCategory('Social Media', this)">Social Media</button>
+        </div>
+
+        <div class="form-box" style="margin-bottom: 25px; background: #161b22; border: 1px solid #30363d;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 style="margin: 0; font-size: 1rem; color: #58a6ff;">🔍 Advanced Filters</h3>
+                <button onclick="resetFilters()" style="background: none; border: none; color: #8b949e; cursor: pointer; font-size: 0.85rem;">Reset All</button>
+            </div>
+            <div class="row-group" style="margin-bottom: 10px;">
+                <div class="form-group" style="margin:0;">
+                    <label style="font-size:0.8rem; color:#8b949e;">Division Rank</label>
+                    <select id="filterDivision" class="search-bar" onchange="filterListings()" style="margin-top:4px;">
+                        <option value="">Any division</option>
+                        <option>Division 1</option>
+                        <option>Division 2</option>
+                        <option>Division 3</option>
+                        <option>Division 4-10</option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label style="font-size:0.8rem; color:#8b949e;">Player Name</label>
+                    <input type="text" id="filterPlayer" placeholder="e.g. Bellingham" class="search-bar" oninput="filterListings()" style="margin-top:4px;">
+                </div>
+            </div>
+        </div>
     </div>
 
     <main class="listings-grid" id="listingsContainer">
-        <!-- Default Mock Listing -->
-        <div class="card clickable" onclick="window.location.href='listing.html'">
-            <span class="tag">Division 2</span>
-            <h3>eFootball Pro Account</h3>
-            <p class="price">₦14,999</p>
-            <p class="details">3200 OVR • Top Player: Bellingham 107</p>
-            <button class="btn-escrow">Buy Now - Start Escrow</button>
-        </div>
+        <!-- Rendered dynamically -->
     </main>
-
     <script>
+        let currentCategory = 'All';
+
         window.addEventListener('DOMContentLoaded', () => {
-            const container = document.getElementById('listingsContainer');
-            const savedListings = JSON.parse(localStorage.getItem('realonaListings') || '[]');
-
-            savedListings.forEach((item, index) => {
-                const card = document.createElement('div');
-                card.className = 'card clickable';
-                card.onclick = () => window.location.href = `listing.html?id=${index}`;
-                
-                let imgHtml = item.image ? `<img src="${item.image}" style="width: 100%; height: 140px; object-fit: cover; border-radius: 8px; margin-bottom: 10px;">` : '';
-
-                card.innerHTML = `
-                    ${imgHtml}
-                    <span class="tag">${item.tag}</span>
-                    <h3>${item.title}</h3>
-                    <p class="price">${item.price}</p>
-                    <p class="details">${item.details}</p>
-                    <button class="btn-escrow">Buy Now - Start Escrow</button>
-                `;
-                container.prepend(card);
-            });
+            renderListings();
         });
+
+        function setCategory(cat, btn) {
+            currentCategory = cat;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+            renderListings();
+        }
+
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('filterDivision').value = '';
+            document.getElementById('filterPlayer').value = '';
+            currentCategory = 'All';
+            document.querySelectorAll('.tab').forEach((t, i) => {
+                if (i === 0) t.classList.add('active');
+                else t.classList.remove('active');
+            });
+            renderListings();
+        }
+
+        function renderListings() {
+            const container = document.getElementById('listingsContainer');
+            const searchVal = document.getElementById('searchInput').value.toLowerCase();
+            const divVal = document.getElementById('filterDivision').value.toLowerCase();
+            const playerVal = document.getElementById('filterPlayer').value.toLowerCase();
+
+            // Default mock listings combined with saved local listings
+            let allListings = [
+                {
+                    title: 'TikTok Monetized Page',
+                    price: '₦25,000',
+                    details: '50k Followers • Clean Analytics',
+                    tag: 'Social Media',
+                    category: 'Social Media',
+                    image: ''
+                },
+                {
+                    title: 'eFootball Pro Account',
+                    price: '₦14,999',
+                    details: '3200 OVR • Top Player: Bellingham 107',
+                    tag: 'Division 2',
+                    category: 'eFootball',
+                    image: ''
+                }
+            ];
+
+            const saved = JSON.parse(localStorage.getItem('realonaListings') || '[]');
+            allListings = saved.concat(allListings);
+
+            const filtered = allListings.filter(item => {
+                const cat = item.category || 'eFootball';
+                if (currentCategory !== 'All' && cat !== currentCategory) return false;
+
+                const matchSearch = (item.title + ' ' + item.details + ' ' + item.price).toLowerCase().includes(searchVal);
+                if (!matchSearch) return false;
+
+                if (divVal && !item.details.toLowerCase().includes(divVal) && !item.tag.toLowerCase().includes(divVal)) return false;
+                if (playerVal && !item.details.toLowerCase().includes(playerVal)) return false;
+
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: #8b949e; padding: 40px;">No accounts found matching your filters.</div>`;
+                return;
+            }
+
+            container.innerHTML = filtered.map((item, index) => {
+                let imgHtml = item.image ? `<img src="${item.image}" style="width: 100%; height: 160px; object-fit: cover; border-radius: 8px; margin-bottom: 10px;">` : `<div style="background: #161b22; height: 140px; display: flex; align-items: center; justify-content: center; border-radius: 8px; color: #8b949e; margin-bottom: 10px; border: 1px solid #30363d;">No Screenshot</div>`;
+
+                return `
+                    <div class="card clickable" onclick="window.location.href='listing.html?id=${index}'">
+                        ${imgHtml}
+                        <span class="tag">${item.tag || item.category}</span>
+                        <h3>${item.title}</h3>
+                        <p class="price">${item.price}</p>
+                        <p class="details">${item.details}</p>
+                        <button class="btn-escrow">View Details & Escrow</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Hook up search input live filtering
+        document.getElementById('searchInput').addEventListener('input', renderListings);
     </script>
 </body>
 </html>
