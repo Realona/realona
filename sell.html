@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sell Account - Realona</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="sell.html">Sell Account</a>
+        <a href="about.html">About</a>
+    </nav>
+    
+    <header class="hero">
+        <h1>List an Account</h1>
+        <p>Submit your eFootball or Social Media account for secure escrow sale.</p>
+    </header>
+
+    <main class="form-container">
+        <form onsubmit="event.preventDefault(); alert('Listing submitted successfully! Awaiting admin review.');">
+            <div class="form-group">
+                <label>Category</label>
+                <select class="search-bar">
+                    <option>eFootball Account</option>
+                    <option>TikTok Page</option>
+                    <option>Instagram Page</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Account Title / Description</label>
+                <input type="text" placeholder="e.g. 3200 OVR with 107 Bellingham" class="search-bar" required>
+            </div>
+
+            <div class="form-group">
+                <label>Price (₦)</label>
+                <input type="number" placeholder="15000" class="search-bar" required>
+            </div>
+
+            <div class="form-group">
+                <label>Seller WhatsApp / Contact</label>
+                <input type="text" placeholder="+234..." class="search-bar" required>
+            </div>
+
+            <button type="submit" class="btn-escrow" style="margin-top: 20px;">Submit Listing</button>
+        </form>
+    </main>
+</body>
+</html>
