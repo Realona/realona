@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Sell Your Account - Realona</title>
+    <title>Sell Account - Realona</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -14,182 +14,71 @@
     </nav>
     
     <div class="sell-container">
-        <!-- Step 1: Choose Category -->
-        <div id="step-category" class="sell-step active">
+        <!-- Step 1 -->
+        <div id="step-category" class="sell-step">
             <header class="hero" style="padding: 20px 0;">
                 <h1>Sell Your Account</h1>
-                <p>Choose the type of account you want to list.</p>
+                <p>Choose the type of account to list.</p>
             </header>
             <div class="listings-grid">
                 <div class="card clickable" onclick="showStep('step-efootball')">
                     <h3>🎮 eFootball Account</h3>
-                    <p class="details">Sell your eFootball mobile account — squad, top players, division rank, and Konami credentials.</p>
-                    <div class="tags-container">
-                        <span class="tag-sm">Squad Rating</span>
-                        <span class="tag-sm">Top Players</span>
-                        <span class="tag-sm">Division Rank</span>
-                        <span class="tag-sm">Konami ID</span>
-                    </div>
-                    <button class="btn-escrow" style="margin-top: 15px;">Select →</button>
-                </div>
-                
-                <div class="card clickable" onclick="alert('Social Media listing flow coming next!')">
-                    <h3>📱 Social Media Account</h3>
-                    <p class="details">Sell an Instagram, TikTok, YouTube, Twitter/X, or Facebook account with follower stats.</p>
-                    <div class="tags-container">
-                        <span class="tag-sm">Instagram</span>
-                        <span class="tag-sm">TikTok</span>
-                        <span class="tag-sm">YouTube</span>
-                        <span class="tag-sm">Twitter/X</span>
-                    </div>
+                    <p class="details">Sell squad, top players, division rank, and Konami ID.</p>
                     <button class="btn-escrow" style="margin-top: 15px;">Select →</button>
                 </div>
             </div>
-            <p class="footer-note">All listings are protected by our escrow system
-
-cat > sell.html << 'EOF'
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Sell Your Account - Realona</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <nav>
-        <a href="index.html">Home</a>
-        <a href="sell.html">Sell Account</a>
-        <a href="about.html">About</a>
-    </nav>
-    
-    <div class="sell-container">
-        <!-- Step 1: Choose Category -->
-        <div id="step-category" class="sell-step active">
-            <header class="hero" style="padding: 20px 0;">
-                <h1>Sell Your Account</h1>
-                <p>Choose the type of account you want to list.</p>
-            </header>
-            <div class="listings-grid">
-                <div class="card clickable" onclick="showStep('step-efootball')">
-                    <h3>🎮 eFootball Account</h3>
-                    <p class="details">Sell your eFootball mobile account — squad, top players, division rank, and Konami credentials.</p>
-                    <div class="tags-container">
-                        <span class="tag-sm">Squad Rating</span>
-                        <span class="tag-sm">Top Players</span>
-                        <span class="tag-sm">Division Rank</span>
-                        <span class="tag-sm">Konami ID</span>
-                    </div>
-                    <button class="btn-escrow" style="margin-top: 15px;">Select →</button>
-                </div>
-                
-                <div class="card clickable" onclick="alert('Social Media listing flow coming next!')">
-                    <h3>📱 Social Media Account</h3>
-                    <p class="details">Sell an Instagram, TikTok, YouTube, Twitter/X, or Facebook account with follower stats.</p>
-                    <div class="tags-container">
-                        <span class="tag-sm">Instagram</span>
-                        <span class="tag-sm">TikTok</span>
-                        <span class="tag-sm">YouTube</span>
-                        <span class="tag-sm">Twitter/X</span>
-                    </div>
-                    <button class="btn-escrow" style="margin-top: 15px;">Select →</button>
-                </div>
-            </div>
-            <p class="footer-note">All listings are protected by our escrow system. Credentials are only revealed after payment is confirmed.</p>
         </div>
 
-        <!-- Step 2: eFootball Details Form -->
+        <!-- Step 2 -->
         <div id="step-efootball" class="sell-step" style="display: none;">
-            <div style="margin-bottom: 15px;">
-                <button onclick="showStep('step-category')" class="btn-back">← Change Type</button>
-            </div>
+            <button onclick="showStep('step-category')" class="btn-back">← Change Type</button>
             <header class="hero" style="padding: 10px 0; text-align: left;">
                 <h1>Sell eFootball Account</h1>
-                <p>List your account and get paid securely through escrow.</p>
             </header>
-
-            <div class="secure-banner">
-                🔒 Your credentials are 100% safe. They're hidden until a buyer pays.
-            </div>
-
+            <div class="secure-banner">🔒 Credentials are 100% safe until buyer pays.</div>
             <form onsubmit="handleListingSubmit(event)" class="form-box">
-                <h3>Account Details</h3>
-                
-                <!-- Best Players Dynamic Input -->
                 <div class="form-group">
-                    <label>Best Players (optional - up to 5)</label>
+                    <label>Best Players (up to 5)</label>
                     <div style="display: flex; gap: 10px;">
-                        <input type="text" id="playerInput" placeholder="e.g. 107 Bellingham" class="search-bar" style="margin-top:0; flex:1;">
+                        <input type="text" id="playerInput" placeholder="e.g. Bellingham" class="search-bar" style="margin-top:0; flex:1;">
                         <button type="button" onclick="addPlayer()" class="btn-add-player">+ Add</button>
                     </div>
                     <div id="playersContainer" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;"></div>
                 </div>
-                <div class="row-group">
-                    <div class="form-group">
-                        <label>Division Rank</label>
-                        <select id="divRank" class="search-bar">
-                            <option>Division 1 (Highest)</option>
-                            <option>Division 2</option>
-                            <option>Division 3</option>
-                            <option>Division 4-10</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Squad Rating</label>
-                        <input type="number" id="squadRating" placeholder="e.g. 3500" class="search-bar" required>
-                    </div>
-                </div>
-
                 <div class="form-group">
-                    <label>Price (₦)</label>
-                    <input type="number" id="price" placeholder="15000" class="search-bar" required>
-                    <small style="color: #94a3b8;">You'll receive the price minus a 4% platform fee.</small>
+                    <label>Squad Rating & Price (₦)</label>
+                    <input type="number" id="squadRating" placeholder="Squad Rating e.g. 3500" class="search-bar" required style="margin-bottom: 10px;">
+                    <input type="number" id="price" placeholder="Price in Naira" class="search-bar" required>
                 </div>
 
-                <div class="form-group">
-                    <label>Description</label>
-                    <textarea id="description" placeholder="GP coins, playstyle, special achievements..." class="search-bar" rows="3"></textarea>
-                </div>
-
-                <!-- Screenshot Upload Box -->
                 <div class="form-group">
                     <label>Screenshot (optional)</label>
                     <label for="screenshotFile" class="upload-box">
-                        <div style="font-size: 1.5rem; margin-bottom: 5px;">📁</div>
-                        <div>Click to upload screenshot</div>
-                        <small style="color: #8b949e;">PNG, JPG, WEBP up to 10MB</small>
+                        <div>📁 Click to upload screenshot</div>
                     </label>
                     <input type="file" id="screenshotFile" accept="image/*" style="display: none;" onchange="updateFileName(this)">
                     <div id="fileChosen" style="font-size: 0.85rem; color: #3fb950; margin-top: 5px;"></div>
                 </div>
 
-                <h3 style="margin-top: 25px;">Account Credentials</h3>
-                <p style="color: #94a3b8; font-size: 0.85rem;">Held securely — only revealed to the buyer after escrow payment is confirmed.</p>
-
-                <div class="row-group">
-                    <div class="form-group">
-                        <label>Konami ID (Email)</label>
-                        <input type="email" id="konamiId" placeholder="your-email@konami.com" class="search-bar" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Konami Password</label>
-                        <input type="password" id="konamiPass" placeholder="Password" class="search-bar" required>
-                    </div>
+                <div class="form-group">
+                    <label>Konami ID & Password</label>
+                    <input type="email" id="konamiId" placeholder="Konami Email" class="search-bar" required style="margin-bottom: 10px;">
+                    <input type="password" id="konamiPass" placeholder="Password" class="search-bar" required>
                 </div>
 
-                <button type="submit" class="btn-escrow" style="margin-top: 25px; width: 100%;">List My eFootball Account</button>
+                <button type="submit" class="btn-escrow" style="margin-top: 25px; width: 100%;">List My Account</button>
             </form>
         </div>
     </div>
 
     <script>
         let selectedPlayers = [];
-
-        function showStep(stepId) {
+        function showStep(id) {
             document.querySelectorAll('.sell-step').forEach(el => el.style.display = 'none');
-            document.getElementById(stepId).style.display = 'block';
+            document.getElementById(id).style.display = 'block';
             window.scrollTo(0,0);
         }
+        showStep('step-category');
 
         function addPlayer() {
             const input = document.getElementById('playerInput');
@@ -200,79 +89,23 @@ cat > sell.html << 'EOF'
                 renderPlayers();
             }
         }
-
-        function removePlayer(player) {
-            selectedPlayers = selectedPlayers.filter(p => p !== player);
+        function removePlayer(p) {
+            selectedPlayers = selectedPlayers.filter(x => x !== p);
             renderPlayers();
         }
-
         function renderPlayers() {
-            const container = document.getElementById('playersContainer');
-            container.innerHTML = selectedPlayers.map(p => `
-                <span class="player-tag">
-                    ${p} <span onclick="removePlayer('${p}')" style="cursor:pointer; margin-left:6px; color:#ff7b72;">&times;</span>
-                </span>
+            document.getElementById('playersContainer').innerHTML = selectedPlayers.map(p => `
+                <span class="player-tag">${p} <span onclick="removePlayer('${p}')" style="cursor:pointer; color:#ff7b72;">&times;</span></span>
             `).join('');
         }
-
         function updateFileName(input) {
-            const fileChosen = document.getElementById('fileChosen');
             if (input.files && input.files[0]) {
-                fileChosen.textContent = 'Selected: ' + input.files[0].name;
+                document.getElementById('fileChosen').textContent = 'Selected: ' + input.files[0].name;
             }
         }
-
         function handleListingSubmit(e) {
             e.preventDefault();
-            alert('eFootball account listed successfully with ' + selectedPlayers.length + ' featured players!');
-            window.location.href = 'index.html';
-        }
-    </script>
-</body>
-</html>
-    <script>
-        let selectedPlayers = [];
-
-        function showStep(stepId) {
-            document.querySelectorAll('.sell-step').forEach(el => el.style.display = 'none');
-            document.getElementById(stepId).style.display = 'block';
-            window.scrollTo(0,0);
-        }
-
-        function addPlayer() {
-            const input = document.getElementById('playerInput');
-            const val = input.value.trim();
-            if (val && selectedPlayers.length < 5 && !selectedPlayers.includes(val)) {
-                selectedPlayers.push(val);
-                input.value = '';
-                renderPlayers();
-            }
-        }
-
-        function removePlayer(player) {
-            selectedPlayers = selectedPlayers.filter(p => p !== player);
-            renderPlayers();
-        }
-
-        function renderPlayers() {
-            const container = document.getElementById('playersContainer');
-            container.innerHTML = selectedPlayers.map(p => `
-                <span class="player-tag">
-                    ${p} <span onclick="removePlayer('${p}')" style="cursor:pointer; margin-left:6px; color:#ff7b72;">&times;</span>
-                </span>
-            `).join('');
-        }
-
-        function updateFileName(input) {
-            const fileChosen = document.getElementById('fileChosen');
-            if (input.files && input.files[0]) {
-                fileChosen.textContent = 'Selected: ' + input.files[0].name;
-            }
-        }
-
-        function handleListingSubmit(e) {
-            e.preventDefault();
-            alert('eFootball account listed successfully with ' + selectedPlayers.length + ' featured players!');
+            alert('Listed successfully with ' + selectedPlayers.length + ' players!');
             window.location.href = 'index.html';
         }
     </script>
