@@ -9,6 +9,7 @@
         .wallet-card { background: #161b22; border: 1px solid #30363d; padding: 20px; border-radius: 12px; margin-bottom: 20px; }
         .balance-amount { font-size: 28px; font-weight: bold; color: #58a6ff; margin: 10px 0; }
         .bank-info { background: #21262d; padding: 12px; border-radius: 8px; font-size: 14px; margin-top: 10px; border-left: 4px solid #238636; }
+        .copy-btn { background: #30363d; color: #58a6ff; border: none; padding: 3px 8px; border-radius: 4px; font-size: 12px; cursor: pointer; margin-left: 8px; }
     </style>
 </head>
 <body>
@@ -32,14 +33,15 @@
             <p style="font-size: 14px; color: #c9d1d9; margin-top: 5px;">Transfer funds to the official platform escrow account below to fund your wallet:</p>
             <div class="bank-info">
                 <strong>Bank:</strong> Moniepoint MFB<br>
-                <strong>Account Number:</strong> 9160385331<br>
+                <strong>Account Number:</strong> <span id="accNum">9160385331</span> 
+                <button type="button" class="copy-btn" onclick="copyAccount()">📋 Copy</button><br>
                 <strong>Account Name:</strong> Realona Escrow Services
             </div>
 
             <form onsubmit="submitDeposit(event)" style="margin-top: 15px;">
                 <input type="number" id="depositAmount" placeholder="Amount Sent (₦)" class="search-bar" required style="margin-bottom: 10px;">
-                <input type="text" id="depositRef" placeholder="Transaction Reference / Teller ID" class="search-bar" required style="margin-bottom: 10px;">
-                <button type="submit" class="btn-escrow" style="width:100%;">Submit Deposit for Verification</button>
+                <input type="text" id="senderUsername" placeholder="Sender Username / Account Name" class="search-bar" required style="margin-bottom: 10px;">
+                <button type="submit" class="btn-escrow" style="width:100%;">Confirm Deposit</button>
             </form>
         </div>
         <div class="wallet-card">
@@ -51,31 +53,39 @@
     </div>
 
     <script>
-        // Initialize or load wallet balance
         let balance = Number(localStorage.getItem('realonaWalletBalance') || 0);
         document.getElementById('walletBalance').innerText = '₦' + balance.toLocaleString();
 
         let txs = JSON.parse(localStorage.getItem('realonaTransactions') || '[]');
         renderTransactions();
 
+        function copyAccount() {
+            let num = document.getElementById('accNum').innerText;
+            navigator.clipboard.writeText(num).then(() => {
+                alert('Account number copied: ' + num);
+            }).catch(() => {
+                alert('Copied: ' + num);
+            });
+        }
+
         function submitDeposit(e) {
             e.preventDefault();
             let amt = Number(document.getElementById('depositAmount').value);
-            let ref = document.getElementById('depositRef').value;
+            let user = document.getElementById('senderUsername').value;
 
             let newTx = {
-                type: 'Deposit (Pending Verification)',
+                type: 'Deposit (Pending)',
                 amount: '₦' + amt.toLocaleString(),
-                ref: ref,
+                user: user,
                 date: new Date().toLocaleDateString()
             };
 
             txs.unshift(newTx);
             localStorage.setItem('realonaTransactions', JSON.stringify(txs));
             
-            alert('Deposit submitted successfully! Verification takes 5-10 minutes.');
+            alert('Deposit confirmed! Verification takes 5-10 minutes.');
             document.getElementById('depositAmount').value = '';
-            document.getElementById('depositRef').value = '';
+            document.getElementById('senderUsername').value = '';
             renderTransactions();
         }
 
@@ -89,7 +99,7 @@
                 <div style="background:#21262d; padding:10px; border-radius:6px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
                     <div>
                         <strong>${t.type}</strong><br>
-                        <span style="font-size:12px; color:#8b949e;">Ref: ${t.ref} • ${t.date}</span>
+                        <span style="font-size:12px; color:#8b949e;">User: ${t.user} • ${t.date}</span>
                     </div>
                     <div style="color: #2ea043; font-weight:bold;">${t.amount}</div>
                 </div>
