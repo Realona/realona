@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Sell Account - Realona</title>
+    <title>Sell Your Account - Realona</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -13,39 +13,114 @@
         <a href="about.html">About</a>
     </nav>
     
-    <header class="hero">
-        <h1>List an Account</h1>
-        <p>Submit your eFootball or Social Media account for secure escrow sale.</p>
-    </header>
+    <div class="sell-container">
+        <!-- Step 1: Choose Category -->
+        <div id="step-category" class="sell-step active">
+            <header class="hero" style="padding: 20px 0;">
+                <h1>Sell Your Account</h1>
+                <p>Choose the type of account you want to list.</p>
+            </header>
+            <div class="listings-grid">
+                <div class="card clickable" onclick="showStep('step-efootball')">
+                    <h3>🎮 eFootball Account</h3>
+                    <p class="details">Sell your eFootball mobile account — squad, top players, division rank, and Konami credentials.</p>
+                    <div class="tags-container">
+                        <span class="tag-sm">Squad Rating</span>
+                        <span class="tag-sm">Top Players</span>
+                        <span class="tag-sm">Division Rank</span>
+                        <span class="tag-sm">Konami ID</span>
+                    </div>
+                    <button class="btn-escrow" style="margin-top: 15px;">Select →</button>
+                </div>
+                
+                <div class="card clickable" onclick="alert('Social Media listing flow coming next!')">
+                    <h3>📱 Social Media Account</h3>
+                    <p class="details">Sell an Instagram, TikTok, YouTube, Twitter/X, or Facebook account with follower stats.</p>
+                    <div class="tags-container">
+                        <span class="tag-sm">Instagram</span>
+                        <span class="tag-sm">TikTok</span>
+                        <span class="tag-sm">YouTube</span>
+                        <span class="tag-sm">Twitter/X</span>
+                    </div>
+                    <button class="btn-escrow" style="margin-top: 15px;">Select →</button>
+                </div>
+            </div>
+            <p class="footer-note">All listings are protected by our escrow system. Credentials are only revealed after payment is confirmed.</p>
+        </div>
+        <!-- Step 2: eFootball Details Form -->
+        <div id="step-efootball" class="sell-step" style="display: none;">
+            <div style="margin-bottom: 15px;">
+                <button onclick="showStep('step-category')" class="btn-back">← Change Type</button>
+            </div>
+            <header class="hero" style="padding: 10px 0; text-align: left;">
+                <h1>Sell eFootball Account</h1>
+                <p>List your account and get paid securely through escrow.</p>
+            </header>
 
-    <main class="form-container">
-        <form onsubmit="event.preventDefault(); alert('Listing submitted successfully! Awaiting admin review.');">
-            <div class="form-group">
-                <label>Category</label>
-                <select class="search-bar">
-                    <option>eFootball Account</option>
-                    <option>TikTok Page</option>
-                    <option>Instagram Page</option>
-                </select>
+            <div class="secure-banner">
+                🔒 Your credentials are 100% safe. They're hidden until a buyer pays.
             </div>
 
-            <div class="form-group">
-                <label>Account Title / Description</label>
-                <input type="text" placeholder="e.g. 3200 OVR with 107 Bellingham" class="search-bar" required>
-            </div>
+            <form onsubmit="event.preventDefault(); alert('eFootball account listed successfully!'); window.location.href='index.html';" class="form-box">
+                <h3>Account Details</h3>
+                
+                <div class="form-group">
+                    <label>Best Players (optional - up to 5)</label>
+                    <input type="text" placeholder="e.g. 107 Bellingham, ShowTime Messi" class="search-bar">
+                </div>
 
-            <div class="form-group">
-                <label>Price (₦)</label>
-                <input type="number" placeholder="15000" class="search-bar" required>
-            </div>
+                <div class="row-group">
+                    <div class="form-group">
+                        <label>Division Rank</label>
+                        <select class="search-bar">
+                            <option>Division 1 (Highest)</option>
+                            <option>Division 2</option>
+                            <option>Division 3</option>
+                            <option>Division 4-10</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Squad Rating</label>
+                        <input type="number" placeholder="e.g. 3500" class="search-bar" required>
+                    </div>
+                </div>
 
-            <div class="form-group">
-                <label>Seller WhatsApp / Contact</label>
-                <input type="text" placeholder="+234..." class="search-bar" required>
-            </div>
+                <div class="form-group">
+                    <label>Price (₦)</label>
+                    <input type="number" placeholder="15000" class="search-bar" required>
+                    <small style="color: #94a3b8;">You'll receive the price minus a 4% platform fee.</small>
+                </div>
 
-            <button type="submit" class="btn-escrow" style="margin-top: 20px;">Submit Listing</button>
-        </form>
-    </main>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea placeholder="GP coins, playstyle, special achievements..." class="search-bar" rows="3"></textarea>
+                </div>
+
+                <h3 style="margin-top: 25px;">Account Credentials</h3>
+                <p style="color: #94a3b8; font-size: 0.85rem;">Held securely — only revealed to the buyer after escrow payment is confirmed.</p>
+
+                <div class="row-group">
+                    <div class="form-group">
+                        <label>Konami ID (Email)</label>
+                        <input type="email" placeholder="your-email@konami.com" class="search-bar" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Konami Password</label>
+                        <input type="password" placeholder="Password" class="search-bar" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-escrow" style="margin-top: 25px; width: 100%;">List My eFootball Account</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function showStep(stepId) {
+            document.querySelectorAll('.sell-step').forEach(el => el.style.display = 'none');
+            document.getElementById(stepId).style.display = 'block';
+            window.scrollTo(0,0);
+        }
+    </script>
 </body>
 </html>
