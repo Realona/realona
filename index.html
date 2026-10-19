@@ -10,9 +10,8 @@
         .filter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
         .tab-btn { background: #21262d; border: 1px solid #30363d; color: #8b949e; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; }
         .tab-btn.active { background: #238636; color: #fff; border-color: #238636; }
-        .card-row { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; gap: 10px; }
-        .card-price { font-size: 18px; font-weight: bold; color: #58a6ff; white-space: nowrap; }
-        .btn-buy { background: #238636; color: #fff; padding: 8px 14px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: bold; display: inline-block; white-space: nowrap; }
+        .card-row { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
+        .card-price { font-size: 18px; font-weight: bold; color: #58a6ff; }
         .card-clickable { cursor: pointer; transition: transform 0.15s ease; }
         .card-clickable:active { transform: scale(0.98); }
     </style>
@@ -93,7 +92,7 @@
                     <p class="details">${item.details}</p>
                     <div class="card-row">
                         <span class="card-price">${item.price}</span>
-                        <a href="buy.html?id=${item.originalIndex}" onclick="event.stopPropagation();" class="btn-buy">Buy via Escrow</a>
+                        <span style="font-size:12px; color:#58a6ff;">View Listing →</span>
                     </div>
                 </div>
             `).join('');
