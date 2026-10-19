@@ -14,7 +14,7 @@
     </nav>
     
     <div class="sell-container">
-        <!-- Step 1: Category Selection -->
+        <!-- Step 1 -->
         <div id="step-category" class="sell-step">
             <header class="hero" style="padding: 20px 0;">
                 <h1>Sell Your Account</h1>
@@ -29,7 +29,7 @@
             </div>
         </div>
 
-        <!-- Step 2: eFootball Form -->
+        <!-- Step 2 -->
         <div id="step-efootball" class="sell-step" style="display: none;">
             <button onclick="showStep('step-category')" class="btn-back">← Change Type</button>
             <header class="hero" style="padding: 10px 0; text-align: left;">
@@ -46,7 +46,6 @@
                     </div>
                     <div id="playersContainer" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;"></div>
                 </div>
-
                 <div class="form-group">
                     <label>Squad Rating & Price (₦)</label>
                     <input type="number" id="squadRating" placeholder="Squad Rating e.g. 3500" class="search-bar" required style="margin-bottom: 10px;">
@@ -56,10 +55,9 @@
                 <div class="form-group">
                     <label>Screenshot (optional)</label>
                     <label for="screenshotFile" class="upload-box">
-                        <div>📁 Click to upload screenshot</div>
+                        <div id="uploadText">📁 Click to upload screenshot</div>
                     </label>
-                    <input type="file" id="screenshotFile" accept="image/*" style="display: none;" onchange="updateFileName(this)">
-                    <div id="fileChosen" style="font-size: 0.85rem; color: #3fb950; margin-top: 5px;"></div>
+                    <input type="file" id="screenshotFile" accept="image/*" style="display: none;" onchange="handleImageUpload(this)">
                 </div>
 
                 <div class="form-group">
@@ -72,19 +70,17 @@
             </form>
         </div>
     </div>
+
     <script>
         let selectedPlayers = [];
+        let uploadedImageString = '';
 
         function showStep(id) {
             document.querySelectorAll('.sell-step').forEach(el => el.style.display = 'none');
             const target = document.getElementById(id);
-            if (target) {
-                target.style.display = 'block';
-            }
+            if (target) target.style.display = 'block';
             window.scrollTo(0,0);
         }
-
-        // Default to step 1 on load
         showStep('step-category');
 
         function addPlayer() {
@@ -108,15 +104,36 @@
             `).join('');
         }
 
-        function updateFileName(input) {
+        function handleImageUpload(input) {
             if (input.files && input.files[0]) {
-                document.getElementById('fileChosen').textContent = 'Selected: ' + input.files[0].name;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    uploadedImageString = e.target.result;
+                    document.getElementById('uploadText').textContent = 'Selected: ' + input.files[0].name;
+                };
+                reader.readAsDataURL(input.files[0]);
             }
         }
 
         function handleListingSubmit(e) {
             e.preventDefault();
-            alert('Listed successfully with ' + selectedPlayers.length + ' players!');
+            const squad = document.getElementById('squadRating').value;
+            const price = document.getElementById('price').value;
+            const topPlayer = selectedPlayers.length > 0 ? selectedPlayers[0] : 'Custom Squad';
+
+            const newListing = {
+                title: 'eFootball Pro Account',
+                price: '₦' + Number(price).toLocaleString(),
+                details: `${squad} OVR • Top Player: ${topPlayer}`,
+                tag: 'Division 2',
+                image: uploadedImageString
+            };
+
+            let listings = JSON.parse(localStorage.getItem('realonaListings') || '[]');
+            listings.unshift(newListing);
+            localStorage.setItem('realonaListings', JSON.stringify(listings));
+
+            alert('Account listed successfully!');
             window.location.href = 'index.html';
         }
     </script>
