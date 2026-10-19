@@ -1,17 +1,45 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Realona</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Realona - Secure Digital Marketplace</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <nav>
-    <a href="index.html">Home</a>
-    <a href="about.html">About</a>
-  </nav>
-  <h1>Welcome to Realona</h1>
-  <p>My website starts here.</p>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+    </nav>
+    
+    <header class="hero">
+        <h1>Realona Marketplace</h1>
+        <p>Secure Escrow Platform for eFootball & Social Media Accounts</p>
+        <input type="text" placeholder="Search accounts, division, player..." class="search-bar">
+    </header>
+
+    <div class="categories">
+        <button class="tab active">All</button>
+        <button class="tab">eFootball</button>
+        <button class="tab">Social Media</button>
+    </div>
+
+    <main class="listings-grid">
+        <div class="card">
+            <span class="tag">Division 2</span>
+            <h3>eFootball Pro Account</h3>
+            <p class="price">₦14,999</p>
+            <p class="details">3200 OVR • Top Player: Bellingham 107</p>
+            <button class="btn-escrow">Buy Now - Start Escrow</button>
+        </div>
+        
+        <div class="card">
+            <span class="tag">Verified</span>
+            <h3>TikTok Monetized Page</h3>
+            <p class="price">₦25,000</p>
+            <p class="details">50k Followers • Clean Analytics</p>
+            <button class="btn-escrow">Buy Now - Start Escrow</button>
+        </div>
+    </main>
 </body>
 </html>
