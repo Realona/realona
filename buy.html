@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Escrow Checkout - Realona</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .checkout-box { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 20px; margin-top: 15px; }
+        .cred-box { background: #0d1117; border: 1px solid #238636; border-radius: 8px; padding: 15px; margin-top: 15px; }
+        .badge-escrow { background: #d29922; color: #000; padding: 4px 10px; border-radius: 12px; font-weight: bold; font-size: 12px; }
+        .badge-success { background: #238636; color: #fff; padding: 4px 10px; border-radius: 12px; font-weight: bold; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="sell.html">Sell Account</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="wallet.html">Wallet</a>
+        <a href="about.html">About</a>
+    </nav>
+    <div class="sell-container">
+        <h2>🔒 Escrow Checkout</h2>
+        
+        <div id="checkoutView">
+            <div class="checkout-box">
+                <h3 id="itemTitle">Account Title</h3>
+                <p id="itemDetails" style="color: #8b949e; font-size: 14px; margin: 5px 0;"></p>
+                <div id="itemPrice" style="font-size: 24px; font-weight: bold; color: #58a6ff; margin: 10px 0;">₦0</div>
+                <div style="font-size: 13px; color: #8b949e;">Your Available Balance: <strong id="buyerBalance" style="color:#c9d1d9;">₦0</strong></div>
+            </div>
+
+            <button onclick="processEscrowPay()" class="btn-escrow" style="width: 100%; margin-top: 15px; padding: 14px;">Pay & Hold Funds in Escrow</button>
+        </div>
+
+        <div id="escrowActiveView" style="display:none;">
+            <div class="checkout-box">
+                <div style="display:flex; justify-size:space-between; align-items:center; margin-bottom:10px;">
+                    <h3>Status: Active Trade</h3>
+                    <span id="tradeBadge" class="badge-escrow">FUNDS IN ESCROW</span>
+                </div>
+                <p style="font-size: 13px; color: #8b949e;">Funds are locked safely in Realona Escrow. Review credentials below and test logging in before releasing payment.</p>
+
+                <div class="cred-box">
+                    <h4 style="color: #3fb950; margin-bottom: 8px;">🔑 Account Login Credentials</h4>
+                    <div id="credDetails" style="font-family: monospace; font-size: 14px; color: #c9d1d9; line-height: 1.6;">
+                        <!-- Decrypted credentials pop in here -->
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px; display: flex; gap: 10px;">
+                    <button onclick="releaseEscrowPayout()" class="btn-escrow" style="flex:1; background:#238636;">Confirm & Release Payout</button>
+                    <button onclick="raiseDispute()" class="btn-escrow" style="flex:1; background:#da3633;">Raise Dispute</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const itemIndex = urlParams.get('id') || 0;
+
+        let listings = JSON.parse(localStorage.getItem('realonaListings') || '[]');
+        let currentItem = listings[itemIndex] || { title: 'Sample Account', price: '₦10,000', details: 'Pro Account', category: 'eFootball' };
+
+        let walletBalance = Number(localStorage.getItem('realonaWalletBalance') || 0);
+
+        document.getElementById('itemTitle').innerText = currentItem.title;
+        document.getElementById('itemDetails').innerText = currentItem.details;
+        document.getElementById('itemPrice').innerText = currentItem.price;
+        document.getElementById('buyerBalance').innerText = '₦' + walletBalance.toLocaleString();
+
+        function processEscrowPay() {
+            let numericPrice = Number(currentItem.price.replace(/[^0-9.-]+/g,"")) || 0;
+
+            if (walletBalance < numericPrice) {
+                if (confirm('Insufficient wallet balance! Would you like to go to your Wallet to deposit funds?')) {
+                    window.location.href = 'wallet.html';
+                }
+                return;
+            }
+
+            // Deduct balance and set in escrow
+            walletBalance -= numericPrice;
+            localStorage.setItem('realonaWalletBalance', walletBalance);
+            
+            currentItem.status = 'In Escrow';
+            listings[itemIndex] = currentItem;
+            localStorage.setItem('realonaListings', JSON.stringify(listings));
+
+            showEscrowActiveView();
+        }
+
+        function showEscrowActiveView() {
+            document.getElementById('checkoutView').style.display = 'none';
+            document.getElementById('escrowActiveView').style.display = 'block';
+
+            // Retrieve credentials saved during listing
+            let creds = currentItem.category === 'eFootball' ? `
+                <strong>Konami ID:</strong> demo_seller@gmail.com<br>
+                <strong>Password:</strong> RealonaPass2026!<br>
+                <strong>Recovery Email:</strong> demo_recovery@gmail.com
+            ` : `
+                <strong>Email:</strong> social_seller@gmail.com<br>
+                <strong>Password:</strong> SecureSocial99!
+            `;
+
+            document.getElementById('credDetails').innerHTML = creds;
+        }
+
+        function releaseEscrowPayout() {
+            alert('Trade Completed! Funds have been released to the seller.');
+            currentItem.status = 'Sold';
+            listings[itemIndex] = currentItem;
+            localStorage.setItem('realonaListings', JSON.stringify(listings));
+            window.location.href = 'dashboard.html';
+        }
+
+        function raiseDispute() {
+            alert('Dispute opened! Our Realona support agent will review your trade details shortly.');
+        }
+    </script>
+</body>
+</html>
