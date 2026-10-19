@@ -14,7 +14,7 @@
     </nav>
     
     <div class="sell-container">
-        <!-- Step 1 -->
+        <!-- Step 1: Category Selection -->
         <div id="step-category" class="sell-step">
             <header class="hero" style="padding: 20px 0;">
                 <h1>Sell Your Account</h1>
@@ -29,13 +29,14 @@
             </div>
         </div>
 
-        <!-- Step 2 -->
+        <!-- Step 2: eFootball Form -->
         <div id="step-efootball" class="sell-step" style="display: none;">
             <button onclick="showStep('step-category')" class="btn-back">← Change Type</button>
             <header class="hero" style="padding: 10px 0; text-align: left;">
                 <h1>Sell eFootball Account</h1>
             </header>
             <div class="secure-banner">🔒 Credentials are 100% safe until buyer pays.</div>
+            
             <form onsubmit="handleListingSubmit(event)" class="form-box">
                 <div class="form-group">
                     <label>Best Players (up to 5)</label>
@@ -45,6 +46,7 @@
                     </div>
                     <div id="playersContainer" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;"></div>
                 </div>
+
                 <div class="form-group">
                     <label>Squad Rating & Price (₦)</label>
                     <input type="number" id="squadRating" placeholder="Squad Rating e.g. 3500" class="search-bar" required style="margin-bottom: 10px;">
@@ -70,14 +72,19 @@
             </form>
         </div>
     </div>
-
     <script>
         let selectedPlayers = [];
+
         function showStep(id) {
             document.querySelectorAll('.sell-step').forEach(el => el.style.display = 'none');
-            document.getElementById(id).style.display = 'block';
+            const target = document.getElementById(id);
+            if (target) {
+                target.style.display = 'block';
+            }
             window.scrollTo(0,0);
         }
+
+        // Default to step 1 on load
         showStep('step-category');
 
         function addPlayer() {
@@ -89,127 +96,27 @@
                 renderPlayers();
             }
         }
+
         function removePlayer(p) {
             selectedPlayers = selectedPlayers.filter(x => x !== p);
             renderPlayers();
         }
+
         function renderPlayers() {
             document.getElementById('playersContainer').innerHTML = selectedPlayers.map(p => `
                 <span class="player-tag">${p} <span onclick="removePlayer('${p}')" style="cursor:pointer; color:#ff7b72;">&times;</span></span>
             `).join('');
         }
+
         function updateFileName(input) {
             if (input.files && input.files[0]) {
                 document.getElementById('fileChosen').textContent = 'Selected: ' + input.files[0].name;
             }
         }
+
         function handleListingSubmit(e) {
             e.preventDefault();
             alert('Listed successfully with ' + selectedPlayers.length + ' players!');
-            window.location.href = 'index.html';
-        }
-    </script>
-</body>
-</html>
-                <div class="row-group">
-                    <div class="form-group">
-                        <label>Division Rank</label>
-                        <select id="divRank" class="search-bar">
-                            <option>Division 1 (Highest)</option>
-                            <option>Division 2</option>
-                            <option>Division 3</option>
-                            <option>Division 4-10</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Squad Rating</label>
-                        <input type="number" id="squadRating" placeholder="e.g. 3500" class="search-bar" required>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Price (₦)</label>
-                    <input type="number" id="price" placeholder="15000" class="search-bar" required>
-                    <small style="color: #94a3b8;">Minus 4% platform fee.</small>
-                </div>
-
-                <div class="form-group">
-                    <label>Description</label>
-                    <textarea id="description" placeholder="GP coins, playstyle..." class="search-bar" rows="3"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>Screenshot (optional)</label>
-                    <label for="screenshotFile" class="upload-box">
-                        <div>📁 Click to upload screenshot</div>
-                        <small style="color: #8b949e;">PNG, JPG up to 10MB</small>
-                    </label>
-                    <input type="file" id="screenshotFile" accept="image/*" style="display: none;" onchange="updateFileName(this)">
-                    <div id="fileChosen" style="font-size: 0.85rem; color: #3fb950; margin-top: 5px;"></div>
-                </div>
-
-                <h3 style="margin-top: 25px;">Account Credentials</h3>
-                <div class="row-group">
-                    <div class="form-group">
-                        <label>Konami ID (Email)</label>
-                        <input type="email" id="konamiId" placeholder="email@konami.com" class="search-bar" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Konami Password</label>
-                        <input type="password" id="konamiPass" placeholder="Password" class="search-bar" required>
-                    </div>
-                </div>
-
-                <button type="submit" class="btn-escrow" style="margin-top: 25px; width: 100%;">List My Account</button>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        let selectedPlayers = [];
-
-        function showStep(stepId) {
-            document.querySelectorAll('.sell-step').forEach(el => el.style.display = 'none');
-            document.getElementById(stepId).style.display = 'block';
-            window.scrollTo(0,0);
-        }
-
-        showStep('step-category');
-
-        function addPlayer() {
-            const input = document.getElementById('playerInput');
-            const val = input.value.trim();
-            if (val && selectedPlayers.length < 5 && !selectedPlayers.includes(val)) {
-                selectedPlayers.push(val);
-                input.value = '';
-                renderPlayers();
-            }
-        }
-
-        function removePlayer(player) {
-            selectedPlayers = selectedPlayers.filter(p => p !== player);
-            renderPlayers();
-        }
-
-        function renderPlayers() {
-            const container = document.getElementById('playersContainer');
-            container.innerHTML = selectedPlayers.map(p => `
-                <span class="player-tag">
-                    ${p} <span onclick="removePlayer('${p}')" style="cursor:pointer; margin-left:6px; color:#ff7b72;">&times;</span>
-                </span>
-            `).join('');
-        }
-
-        function updateFileName(input) {
-            const fileChosen = document.getElementById('fileChosen');
-            if (input.files && input.files[0]) {
-                fileChosen.textContent = 'Selected: ' + input.files[0].name;
-            }
-        }
-
-        function handleListingSubmit(e) {
-            e.preventDefault();
-            alert('eFootball account listed successfully with ' + selectedPlayers.length + ' featured players!');
             window.location.href = 'index.html';
         }
     </script>
