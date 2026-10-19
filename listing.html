@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Listing Details - Realona</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="sell.html">Sell Account</a>
+        <a href="about.html">About</a>
+    </nav>
+    
+    <div class="sell-container" style="max-width: 700px;">
+        <div style="margin-bottom: 15px;">
+            <a href="index.html" class="btn-back">← Back to Marketplace</a>
+        </div>
+
+        <div id="listingDetailsContent">
+            <!-- Dynamically populated listing view -->
+        </div>
+    </div>
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const index = params.get('id');
+            
+            // Default mock listing if none selected
+            let listing = {
+                title: 'eFootball Pro Account',
+                price: '₦14,999',
+                details: '3200 OVR • Top Player: Bellingham 107',
+                tag: 'Division 2',
+                image: ''
+            };
+
+            if (index !== null) {
+                const savedListings = JSON.parse(localStorage.getItem('realonaListings') || '[]');
+                if (savedListings[index]) {
+                    listing = savedListings[index];
+                }
+            }
+
+            const container = document.getElementById('listingDetailsContent');
+            
+            let imgHtml = listing.image ? `<img src="${listing.image}" style="width: 100%; max-height: 350px; object-fit: cover; border-radius: 12px; margin-bottom: 20px; border: 1px solid #30363d;">` : `<div style="background: #161b22; height: 200px; display: flex; align-items: center; justify-content: center; border-radius: 12px; color: #8b949e; margin-bottom: 20px; border: 1px solid #30363d;">No Screenshot Provided</div>`;
+
+            container.innerHTML = `
+                ${imgHtml}
+                
+                <div class="form-box" style="margin-bottom: 15px;">
+                    <span class="tag">${listing.tag || 'eFootball'}</span>
+                    <h2 style="color: #58a6ff; margin: 10px 0 5px 0;">${listing.title}</h2>
+                    <p style="color: #8b949e; font-size: 0.9rem;">👤 Sold by <b>SellerDemo</b> ✓</p>
+                </div>
+
+                <div class="form-box" style="margin-bottom: 15px;">
+                    <p style="font-size: 0.85rem; color: #8b949e; margin: 0 0 5px 0;">LISTING PRICE</p>
+                    <h1 style="color: #58a6ff; margin: 0;">${listing.price}</h1>
+                    <small style="color: #94a3b8;">Platform fee (4%) deducted from seller earnings.</small>
+                </div>
+
+                <button onclick="alert('Escrow initiated! Redirecting to payment...')" class="btn-escrow" style="padding: 15px; font-size: 1.1rem; margin-bottom: 15px;">Buy Now — Start Escrow</button>
+
+                <div class="form-box" style="margin-bottom: 15px;">
+                    <h3 style="margin-top: 0; font-size: 1rem;">WHY BUY HERE?</h3>
+                    <p style="font-size: 0.9rem; color: #3fb950; margin: 5px 0;">🛡️ <b>Escrow Protection</b><br><span style="color: #8b949e;">Your funds are held safely until you confirm full access.</span></p>
+                    <p style="font-size: 0.9rem; color: #58a6ff; margin: 10px 0 0 0;">⚖️ <b>Dispute Resolution</b><br><span style="color: #8b949e;">Admins intervene if anything goes wrong.</span></p>
+                </div>
+
+                <div class="form-box">
+                    <h3 style="margin-top: 0; font-size: 1rem;">ACCOUNT INFO</h3>
+                    <p style="color: #c9d1d9; font-size: 0.95rem;">${listing.details}</p>
+                </div>
+            `;
+        });
+    </script>
+</body>
+</html>

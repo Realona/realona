@@ -26,20 +26,12 @@
     </div>
 
     <main class="listings-grid" id="listingsContainer">
-        <!-- Default Mock Listings -->
-        <div class="card">
+        <!-- Default Mock Listing -->
+        <div class="card clickable" onclick="window.location.href='listing.html'">
             <span class="tag">Division 2</span>
             <h3>eFootball Pro Account</h3>
             <p class="price">₦14,999</p>
             <p class="details">3200 OVR • Top Player: Bellingham 107</p>
-            <button class="btn-escrow">Buy Now - Start Escrow</button>
-        </div>
-        
-        <div class="card">
-            <span class="tag">Verified</span>
-            <h3>TikTok Monetized Page</h3>
-            <p class="price">₦25,000</p>
-            <p class="details">50k Followers • Clean Analytics</p>
             <button class="btn-escrow">Buy Now - Start Escrow</button>
         </div>
     </main>
@@ -49,14 +41,12 @@
             const container = document.getElementById('listingsContainer');
             const savedListings = JSON.parse(localStorage.getItem('realonaListings') || '[]');
 
-            savedListings.forEach(item => {
+            savedListings.forEach((item, index) => {
                 const card = document.createElement('div');
-                card.className = 'card';
+                card.className = 'card clickable';
+                card.onclick = () => window.location.href = `listing.html?id=${index}`;
                 
-                let imgHtml = '';
-                if (item.image) {
-                    imgHtml = `<img src="${item.image}" style="width: 100%; height: 140px; object-fit: cover; border-radius: 8px; margin-bottom: 10px;">`;
-                }
+                let imgHtml = item.image ? `<img src="${item.image}" style="width: 100%; height: 140px; object-fit: cover; border-radius: 8px; margin-bottom: 10px;">` : '';
 
                 card.innerHTML = `
                     ${imgHtml}
