@@ -106,7 +106,7 @@
             if (!price.includes('₦')) price = '₦' + price;
             let detailsString = `${rating} OVR • ${division}` + (playerTags.length ? ` • Top Players: ${playerTags.join(', ')}` : '');
 
-            function finalizeListing(imgData) {
+            function saveListing(imgData) {
                 try {
                     let newListing = {
                         title: 'eFootball Pro Account',
@@ -122,10 +122,10 @@
                     existingListings.unshift(newListing);
                     localStorage.setItem('realonaListings', JSON.stringify(existingListings));
 
-                    alert('✅ Account listed successfully with image!');
+                    alert('✅ Account listed successfully!');
                     window.location.href = 'index.html';
                 } catch (err) {
-                    alert('Storage limit reached. Try a smaller image or list without image.');
+                    alert('Error saving listing: ' + err.message);
                 }
             }
 
@@ -136,26 +136,21 @@
                     img.onload = function() {
                         let canvas = document.createElement('canvas');
                         let ctx = canvas.getContext('2d');
-                        let maxDim = 800;
+                        let maxDim = 600;
                         let w = img.width;
                         let h = img.height;
-
-                        if (w > h) {
-                            if (w > maxDim) { h *= maxDim / w; w = maxDim; }
-                        } else {
-                            if (h > maxDim) { w *= maxDim / h; h = maxDim; }
-                        }
-
+                        if (w > h) { if (w > maxDim) { h *= maxDim / w; w = maxDim; } }
+                        else { if (h > maxDim) { w *= maxDim / h; h = maxDim; } }
                         canvas.width = w;
                         canvas.height = h;
                         ctx.drawImage(img, 0, 0, w, h);
-                        finalizeListing(canvas.toDataURL('image/jpeg', 0.8));
+                        saveListing(canvas.toDataURL('image/jpeg', 0.7));
                     };
                     img.src = evt.target.result;
                 };
                 reader.readAsDataURL(fileInput.files[0]);
             } else {
-                finalizeListing('');
+                saveListing('');
             }
         });
     </script>

@@ -8,15 +8,14 @@
     <style>
         .listing-card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 20px; margin-top: 15px; }
         .img-container { position: relative; width: 100%; background: #0d1117; border-radius: 8px; border: 1px solid #30363d; margin-bottom: 15px; overflow: hidden; cursor: pointer; text-align: center; }
-        .img-preview { width: 100%; max-height: 380px; object-fit: contain; display: block; margin: 0 auto; }
-        .zoom-badge { position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.75); color: #fff; font-size: 11px; padding: 4px 8px; border-radius: 4px; pointer-events: none; }
+        .img-preview { width: 100%; max-height: 450px; object-fit: contain; display: block; margin: 0 auto; background: #000; }
+        .zoom-badge { position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.8); color: #fff; font-size: 12px; padding: 6px 10px; border-radius: 4px; pointer-events: none; font-weight: bold; }
         .btn-buy { display: block; width: 100%; text-align: center; padding: 12px; background: #238636; color: #fff; font-weight: bold; border-radius: 6px; text-decoration: none; margin-top: 15px; border: none; cursor: pointer; box-sizing: border-box; }
         .back-link { color: #58a6ff; text-decoration: none; font-size: 13px; display: inline-block; margin-bottom: 10px; }
         .feature-badge { display: inline-block; background: #21262d; border: 1px solid #30363d; color: #c9d1d9; padding: 4px 8px; border-radius: 6px; font-size: 12px; margin-right: 6px; margin-top: 6px; }
 
-        /* Fullscreen Image Modal */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 999; justify-content: center; align-items: center; }
-        .modal-overlay img { max-width: 95%; max-height: 95%; border-radius: 8px; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 999; justify-content: center; align-items: center; }
+        .modal-overlay img { max-width: 98%; max-height: 98%; border-radius: 8px; object-fit: contain; }
     </style>
 </head>
 <body>
@@ -32,8 +31,8 @@
 
         <div class="listing-card">
             <div class="img-container" onclick="openModal()">
-                <img id="itemImg" src="https://via.placeholder.com/600x300/161b22/58a6ff?text=eFootball+Account+Preview" class="img-preview" alt="Preview">
-                <div class="zoom-badge">🔍 Tap to View Full Screenshot</div>
+                <img id="itemImg" src="https://via.placeholder.com/600x400/161b22/58a6ff?text=No+Screenshot+Provided" class="img-preview" alt="Preview">
+                <div class="zoom-badge">🔍 Tap to View Full Screen</div>
             </div>
             
             <h2 id="itemTitle" style="margin: 0 0 8px 0; color:#c9d1d9;">eFootball Pro Account</h2>
@@ -51,7 +50,6 @@
         </div>
     </div>
 
-    <!-- Modal Box -->
     <div id="imgModal" class="modal-overlay" onclick="closeModal()">
         <img id="modalImg" src="" alt="Full View">
     </div>
@@ -67,9 +65,11 @@
                 document.getElementById('itemDetails').innerText = item.details;
                 document.getElementById('itemPrice').innerText = item.price;
                 
-                if (item.image) {
+                if (item.image && item.image.trim() !== '') {
                     document.getElementById('itemImg').src = item.image;
                     document.getElementById('modalImg').src = item.image;
+                } else {
+                    document.getElementById('itemImg').src = 'https://via.placeholder.com/600x400/161b22/58a6ff?text=No+Screenshot+Provided';
                 }
 
                 let parts = item.details.split('•');
@@ -81,7 +81,10 @@
         }
 
         function openModal() {
-            document.getElementById('imgModal').style.display = 'flex';
+            let imgSrc = document.getElementById('itemImg').src;
+            if(imgSrc && !imgSrc.includes('placeholder')) {
+                document.getElementById('imgModal').style.display = 'flex';
+            }
         }
 
         function closeModal() {
