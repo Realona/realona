@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Account Registration & Login - Realona</title>
+    <title>Account Management - Realona</title>
     <link rel="stylesheet" href="style.css">
     <style>
         .auth-container { max-width: 450px; margin: 30px auto; padding: 20px; }
@@ -15,6 +15,10 @@
         .form-group label { display: block; font-size: 13px; color: #8b949e; margin-bottom: 5px; }
         .form-group input { width: 100%; padding: 10px; background: #0d1117; border: 1px solid #30363d; color: #c9d1d9; border-radius: 6px; box-sizing: border-box; }
         .btn-submit { width: 100%; padding: 12px; background: #238636; color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .btn-logout { width: 100%; padding: 12px; background: #da3633; color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 15px; }
+        .profile-info { background: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 12px; margin-bottom: 10px; }
+        .profile-info label { font-size: 11px; color: #8b949e; display: block; }
+        .profile-info div { font-size: 15px; font-weight: bold; color: #c9d1d9; margin-top: 2px; }
     </style>
 </head>
 <body>
@@ -23,16 +27,41 @@
         <a href="sell.html">Sell</a>
         <a href="dashboard.html">Dashboard</a>
         <a href="wallet.html">Wallet</a>
-        <a href="auth.html" style="color:#58a6ff;">Account</a>
+        <a href="auth.html" style="color:#58a6ff;" id="navAuth">Account</a>
     </nav>
     <div class="auth-container">
-        <div class="auth-card">
+        <!-- Logged In Profile Card -->
+        <div id="profileBox" class="auth-card" style="display:none;">
+            <h2 style="margin-bottom: 5px; color:#c9d1d9;">👤 Account Details</h2>
+            <p style="color:#8b949e; font-size:12px; margin-bottom:20px;">Your active Realona profile information</p>
+
+            <div class="profile-info">
+                <label>Username / Name</label>
+                <div id="profUsername">-</div>
+            </div>
+            <div class="profile-info">
+                <label>Email Address</label>
+                <div id="profEmail">-</div>
+            </div>
+            <div class="profile-info">
+                <label>Phone Number</label>
+                <div id="profPhone">-</div>
+            </div>
+            <div class="profile-info">
+                <label>Member Since</label>
+                <div id="profJoined">-</div>
+            </div>
+
+            <button onclick="handleLogout()" class="btn-logout">🚪 Sign Out</button>
+        </div>
+
+        <!-- Logged Out Auth Card -->
+        <div id="authFormsBox" class="auth-card">
             <div class="tab-group">
                 <button id="tabRegister" class="auth-tab active" onclick="switchTab('register')">Register</button>
                 <button id="tabLogin" class="auth-tab" onclick="switchTab('login')">Login</button>
             </div>
 
-            <!-- Registration Form -->
             <form id="registerForm" onsubmit="handleRegister(event)">
                 <h3 style="margin-bottom: 15px; color:#c9d1d9;">Create New Account</h3>
                 <div class="form-group">
@@ -53,7 +82,6 @@
                 </div>
                 <button type="submit" class="btn-submit">Register Account</button>
             </form>
-            <!-- Login Form -->
             <form id="loginForm" onsubmit="handleLogin(event)" style="display:none;">
                 <h3 style="margin-bottom: 15px; color:#c9d1d9;">Welcome Back</h3>
                 <div class="form-group">
@@ -73,6 +101,25 @@
     </div>
 
     <script>
+        function checkSession() {
+            let user = JSON.parse(localStorage.getItem('realonaCurrentUser') || 'null');
+            if (user && user.username) {
+                // Show Profile Card
+                document.getElementById('profileBox').style.display = 'block';
+                document.getElementById('authFormsBox').style.display = 'none';
+
+                document.getElementById('profUsername').innerText = user.username;
+                document.getElementById('profEmail').innerText = user.email || 'Not provided';
+                document.getElementById('profPhone').innerText = user.phone || 'Not provided';
+                document.getElementById('profJoined').innerText = user.createdAt || 'Recently';
+                document.getElementById('navAuth').innerText = '👤 ' + user.username;
+            } else {
+                // Show Login / Register Forms
+                document.getElementById('profileBox').style.display = 'none';
+                document.getElementById('authFormsBox').style.display = 'block';
+            }
+        }
+
         function switchTab(tab) {
             document.getElementById('tabRegister').classList.toggle('active', tab === 'register');
             document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
@@ -99,7 +146,7 @@
             localStorage.setItem('realonaCurrentUser', JSON.stringify(newUser));
 
             alert('Account registered successfully! Welcome ' + username + '.');
-            window.location.href = 'dashboard.html';
+            checkSession();
         }
 
         function handleLogin(e) {
@@ -113,11 +160,21 @@
             if (found) {
                 localStorage.setItem('realonaCurrentUser', JSON.stringify(found));
                 alert('Login successful! Welcome back, ' + found.username + '.');
-                window.location.href = 'dashboard.html';
+                checkSession();
             } else {
                 alert('Invalid email/phone or password!');
             }
         }
+
+        function handleLogout() {
+            if (confirm('Are you sure you want to sign out?')) {
+                localStorage.removeItem('realonaCurrentUser');
+                alert('You have logged out.');
+                window.location.href = 'index.html';
+            }
+        }
+
+        checkSession();
     </script>
 </body>
 </html>
