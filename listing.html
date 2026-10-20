@@ -10,6 +10,7 @@
         .img-preview { width: 100%; max-height: 250px; object-fit: cover; border-radius: 8px; border: 1px solid #30363d; margin-bottom: 15px; display: block; }
         .btn-buy { display: block; width: 100%; text-align: center; padding: 12px; background: #238636; color: #fff; font-weight: bold; border-radius: 6px; text-decoration: none; margin-top: 15px; border: none; cursor: pointer; box-sizing: border-box; }
         .back-link { color: #58a6ff; text-decoration: none; font-size: 13px; display: inline-block; margin-bottom: 10px; }
+        .feature-badge { display: inline-block; background: #21262d; border: 1px solid #30363d; color: #c9d1d9; padding: 4px 8px; border-radius: 6px; font-size: 12px; margin-right: 6px; margin-top: 6px; }
     </style>
 </head>
 <body>
@@ -22,14 +23,21 @@
     </nav>
     <div class="sell-container">
         <a href="index.html" class="back-link">← Back to Marketplace</a>
+
         <div class="listing-card">
             <img id="itemImg" src="https://via.placeholder.com/600x300/161b22/58a6ff?text=eFootball+Account+Preview" class="img-preview" alt="Preview">
+            
             <h2 id="itemTitle" style="margin: 0 0 8px 0; color:#c9d1d9;">eFootball Pro Account</h2>
-            <p id="itemDetails" style="color:#8b949e; font-size:14px; margin: 0 0 15px 0;">3000 OVR • Division 3 • Top Player: Messi</p>
+            <p id="itemDetails" style="color:#8b949e; font-size:14px; margin: 0 0 10px 0;">3000 OVR • Division 3 • Top Player: Messi</p>
+            
+            <div id="featureBadges" style="margin-bottom: 15px;"></div>
+
             <div style="font-size: 24px; font-weight: bold; color: #58a6ff; margin-bottom: 15px;" id="itemPrice">₦4,000</div>
+
             <div style="background:#0d1117; border:1px solid #30363d; padding:12px; border-radius:8px; font-size:13px; color:#8b949e; margin-bottom:15px;">
-                🛡️ <strong>Realona Escrow Protection:</strong> Funds are held securely until you verify and log into the account.
+                🛡️ <strong>Realona Escrow Protection:</strong> Funds are held securely until you verify and log into the account successfully.
             </div>
+
             <a id="buyBtnLink" href="#" class="btn-buy">Buy via Escrow</a>
         </div>
     </div>
@@ -42,45 +50,12 @@
             if (listings.length === 0) {
                 listings = [
                     { title: 'eFootball Pro Account', details: '3000 OVR • Division 3 • Top Player: Messi', price: '₦4,000', image: '' },
-                    { title: 'eFootball Pro Account', details: '3000 OVR • Division 1 • Ronaldo', price: '₦3,000', image: '' },
-                    { title: 'eFootball Pro Account', details: '3000 OVR • Division 2 • Top Player: Messi', price: '₦2,000', image: '' }
+                    { title: 'eFootball Pro Account', details: '3000 OVR • Division 1 • Top Player: Mbappe', price: '₦3,000', image: '' }
                 ];
                 localStorage.setItem('realonaListings', JSON.stringify(listings));
             }
 
             let item = listings[id] || listings[0];
-            if (item) {
-                document.getElementById('itemTitle').innerText = item.title;
-                document.getElementById('itemDetails').innerText = item.details;
-                document.getElementById('itemPrice').innerText = item.price;
-                if (item.image) document.getElementById('itemImg').src = item.image;
-                document.getElementById('buyBtnLink').href = 'buy.html?id=' + id;
-            }
-        }
-        renderListing();
-    </script>
-</body>
-</html>
-    <script>
-        function renderListing() {
-            // Get index ID from URL query string
-            const urlParams = new URLSearchParams(window.location.search);
-            const id = urlParams.get('id') || 0;
-
-            let listings = JSON.parse(localStorage.getItem('realonaListings') || '[]');
-            
-            // Default fallback if array is empty
-            if (listings.length === 0) {
-                listings = [
-                    { title: 'eFootball Pro Account', details: '3000 OVR • Division 3 • Top Player: Messi', price: '₦4,000', image: '' },
-                    { title: 'eFootball Pro Account', details: '3000 OVR • Division 1 • Ronaldo', price: '₦3,000', image: '' },
-                    { title: 'eFootball Pro Account', details: '3000 OVR • Division 2 • Top Player: Messi', price: '₦2,000', image: '' }
-                ];
-                localStorage.setItem('realonaListings', JSON.stringify(listings));
-            }
-
-            let item = listings[id] || listings[0];
-
             if (item) {
                 document.getElementById('itemTitle').innerText = item.title;
                 document.getElementById('itemDetails').innerText = item.details;
@@ -90,11 +65,14 @@
                     document.getElementById('itemImg').src = item.image;
                 }
 
-                // Direct "Buy via Escrow" link to buy.html with matching ID
+                // Render detail tags
+                let parts = item.details.split('•');
+                let badgesHtml = parts.map(p => `<span class="feature-badge">✓ ${p.trim()}</span>`).join('');
+                document.getElementById('featureBadges').innerHTML = badgesHtml;
+
                 document.getElementById('buyBtnLink').href = 'buy.html?id=' + id;
             }
         }
-
         renderListing();
     </script>
 </body>

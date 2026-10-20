@@ -56,6 +56,11 @@
                     <input type="text" id="sellPrice" required placeholder="₦5,000">
                 </div>
 
+                <div class="form-group">
+                    <label>Account Screenshot</label>
+                    <input type="file" id="sellImage" accept="image/*">
+                </div>
+
                 <h4 style="color:#c9d1d9; margin: 15px 0 10px 0;">Account Credentials</h4>
                 <div class="form-group">
                     <label>Login Email / ID</label>
@@ -96,29 +101,47 @@
             let price = document.getElementById('sellPrice').value.trim();
             let email = document.getElementById('sellEmail').value.trim();
             let pass = document.getElementById('sellPass').value;
+            let fileInput = document.getElementById('sellImage');
 
             if (!price.includes('₦')) price = '₦' + price;
-
             let detailsString = `${rating} OVR • ${division}` + (playerTags.length ? ` • Top Players: ${playerTags.join(', ')}` : '');
 
-            let newListing = {
-                title: 'eFootball Pro Account',
-                details: detailsString,
-                price: price,
-                status: 'Active',
-                category: 'eFootball',
-                credentials: { email, pass }
-            };
+            function saveAndRedirect(imgData) {
+                let newListing = {
+                    title: 'eFootball Pro Account',
+                    details: detailsString,
+                    price: price,
+                    status: 'Active',
+                    category: 'eFootball',
+                    image: imgData || '',
+                    credentials: { email, pass }
+                };
 
-            try {
                 let existingListings = JSON.parse(localStorage.getItem('realonaListings') || '[]');
                 existingListings.unshift(newListing);
                 localStorage.setItem('realonaListings', JSON.stringify(existingListings));
 
                 alert('✅ Account listed successfully!');
                 window.location.href = 'index.html';
-            } catch (err) {
-                alert('Storage error: ' + err.message);
+            }
+
+            if (fileInput.files[0]) {
+                let reader = new FileReader();
+                reader.onload = function(evt) {
+                    let img = new Image();
+                    img.onload = function() {
+                        let canvas = document.createElement('canvas');
+                        let ctx = canvas.getContext('2d');
+                        canvas.width = 600;
+                        canvas.height = (img.height / img.width) * 600;
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        saveAndRedirect(canvas.toDataURL('image/jpeg', 0.7));
+                    };
+                    img.src = evt.target.result;
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                saveAndRedirect('');
             }
         });
     </script>
