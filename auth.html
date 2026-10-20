@@ -3,17 +3,18 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Authentication - Realona Exchange</title>
+    <title>Account Registration & Login - Realona</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        .auth-card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 25px; margin-top: 20px; }
+        .auth-container { max-width: 450px; margin: 30px auto; padding: 20px; }
+        .auth-card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 25px; }
         .tab-group { display: flex; gap: 10px; margin-bottom: 20px; }
         .auth-tab { flex: 1; padding: 10px; background: #21262d; border: 1px solid #30363d; color: #8b949e; border-radius: 6px; cursor: pointer; font-weight: bold; }
         .auth-tab.active { background: #238636; color: #fff; border-color: #238636; }
         .form-group { margin-bottom: 15px; text-align: left; }
         .form-group label { display: block; font-size: 13px; color: #8b949e; margin-bottom: 5px; }
         .form-group input { width: 100%; padding: 10px; background: #0d1117; border: 1px solid #30363d; color: #c9d1d9; border-radius: 6px; box-sizing: border-box; }
-        .btn-submit { width: 100%; padding: 12px; background: #238636; color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .btn-submit { width: 100%; padding: 12px; background: #238636; color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -22,36 +23,25 @@
         <a href="sell.html">Sell</a>
         <a href="dashboard.html">Dashboard</a>
         <a href="wallet.html">Wallet</a>
-        <a href="auth.html" style="color:#58a6ff;">Login / Register</a>
+        <a href="auth.html" style="color:#58a6ff;">Account</a>
     </nav>
-    <div class="sell-container">
+    <div class="auth-container">
         <div class="auth-card">
             <div class="tab-group">
-                <button id="tabLogin" class="auth-tab active" onclick="switchTab('login')">Login</button>
-                <button id="tabRegister" class="auth-tab" onclick="switchTab('register')">Register</button>
+                <button id="tabRegister" class="auth-tab active" onclick="switchTab('register')">Register</button>
+                <button id="tabLogin" class="auth-tab" onclick="switchTab('login')">Login</button>
             </div>
 
-            <!-- Login Form -->
-            <form id="loginForm" onsubmit="handleLogin(event)">
+            <!-- Registration Form -->
+            <form id="registerForm" onsubmit="handleRegister(event)">
+                <h3 style="margin-bottom: 15px; color:#c9d1d9;">Create New Account</h3>
                 <div class="form-group">
-                    <label>Email / Phone Number</label>
-                    <input type="text" id="loginUser" required placeholder="e.g. 08012345678">
+                    <label>Full Name / Username</label>
+                    <input type="text" id="regUsername" required placeholder="e.g. Kolade Joseph">
                 </div>
                 <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="loginPass" required placeholder="••••••••">
-                </div>
-                <button type="submit" class="btn-submit">Login to Realona</button>
-                <div style="margin-top:12px; text-align:right;">
-                    <a href="reset-password.html" style="color:#58a6ff; font-size:12px; text-decoration:none;">Forgot Password? (OTP)</a>
-                </div>
-            </form>
-
-            <!-- Register Form -->
-            <form id="registerForm" onsubmit="handleRegister(event)" style="display:none;">
-                <div class="form-group">
-                    <label>Username</label>
-                    <input type="text" id="regUsername" required placeholder="Choose username">
+                    <label>Email Address</label>
+                    <input type="email" id="regEmail" required placeholder="your-email@gmail.com">
                 </div>
                 <div class="form-group">
                     <label>Phone Number</label>
@@ -59,55 +49,73 @@
                 </div>
                 <div class="form-group">
                     <label>Password</label>
-                    <input type="password" id="regPass" required placeholder="Create password">
+                    <input type="password" id="regPass" required placeholder="Create strong password">
                 </div>
-                <button type="submit" class="btn-submit">Create Account</button>
+                <button type="submit" class="btn-submit">Register Account</button>
+            </form>
+            <!-- Login Form -->
+            <form id="loginForm" onsubmit="handleLogin(event)" style="display:none;">
+                <h3 style="margin-bottom: 15px; color:#c9d1d9;">Welcome Back</h3>
+                <div class="form-group">
+                    <label>Email Address or Phone</label>
+                    <input type="text" id="loginId" required placeholder="Email or Phone number">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPass" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn-submit">Sign In</button>
+                <div style="margin-top:15px; text-align:right;">
+                    <a href="reset-password.html" style="color:#58a6ff; font-size:12px; text-decoration:none;">Forgot Password? (OTP)</a>
+                </div>
             </form>
         </div>
     </div>
+
     <script>
         function switchTab(tab) {
-            document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
             document.getElementById('tabRegister').classList.toggle('active', tab === 'register');
-            document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
+            document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
             document.getElementById('registerForm').style.display = tab === 'register' ? 'block' : 'none';
+            document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
         }
 
         function handleRegister(e) {
             e.preventDefault();
             let username = document.getElementById('regUsername').value.trim();
+            let email = document.getElementById('regEmail').value.trim();
             let phone = document.getElementById('regPhone').value.trim();
             let pass = document.getElementById('regPass').value;
 
             let users = JSON.parse(localStorage.getItem('realonaUsers') || '[]');
-            if (users.find(u => u.phone === phone || u.username === username)) {
-                alert('An account with this username or phone number already exists!');
+            if (users.find(u => u.email === email || u.phone === phone)) {
+                alert('An account with this email or phone number already exists!');
                 return;
             }
 
-            let newUser = { username, phone, pass };
+            let newUser = { username, email, phone, pass, createdAt: new Date().toLocaleDateString() };
             users.push(newUser);
             localStorage.setItem('realonaUsers', JSON.stringify(users));
             localStorage.setItem('realonaCurrentUser', JSON.stringify(newUser));
 
-            alert('Account registered successfully! Welcome to Realona.');
+            alert('Account registered successfully! Welcome ' + username + '.');
             window.location.href = 'dashboard.html';
         }
 
         function handleLogin(e) {
             e.preventDefault();
-            let userVal = document.getElementById('loginUser').value.trim();
+            let inputId = document.getElementById('loginId').value.trim();
             let passVal = document.getElementById('loginPass').value;
 
             let users = JSON.parse(localStorage.getItem('realonaUsers') || '[]');
-            let found = users.find(u => (u.phone === userVal || u.username === userVal) && u.pass === passVal);
+            let found = users.find(u => (u.email === inputId || u.phone === inputId) && u.pass === passVal);
 
             if (found) {
                 localStorage.setItem('realonaCurrentUser', JSON.stringify(found));
-                alert('Login successful!');
+                alert('Login successful! Welcome back, ' + found.username + '.');
                 window.location.href = 'dashboard.html';
             } else {
-                alert('Invalid username/phone or password!');
+                alert('Invalid email/phone or password!');
             }
         }
     </script>

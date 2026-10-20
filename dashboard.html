@@ -148,3 +148,11 @@
     </script>
 </body>
 </html>
+<script>
+    // Update welcome name dynamically from registered user
+    let user = JSON.parse(localStorage.getItem('realonaCurrentUser') || '{}');
+    if (user.username) {
+        let welcomeHeading = document.querySelector('.welcome-box h2');
+        if (welcomeHeading) welcomeHeading.innerText = 'Welcome back, ' + user.username + '! 👋';
+    }
+</script>
