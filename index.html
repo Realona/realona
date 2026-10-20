@@ -3,102 +3,82 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Realona Exchange - Escrow Marketplace</title>
+    <title>Marketplace - Realona Exchange</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        .filter-section { background: #161b22; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #30363d; }
-        .filter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-        .tab-btn { background: #21262d; border: 1px solid #30363d; color: #8b949e; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; }
-        .tab-btn.active { background: #238636; color: #fff; border-color: #238636; }
-        .card-row { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
-        .card-price { font-size: 18px; font-weight: bold; color: #58a6ff; }
-        .card-clickable { cursor: pointer; transition: transform 0.15s ease; }
-        .card-clickable:active { transform: scale(0.98); }
-    </style>
 </head>
 <body>
     <nav>
-        <a href="index.html">Home</a>
+        <a href="index.html" style="color:#58a6ff;">Home</a>
         <a href="sell.html">Sell Account</a>
         <a href="dashboard.html">Dashboard</a>
         <a href="wallet.html">Wallet</a>
-        <a href="about.html">About</a>
+        <a href="auth.html" id="navAuthLink">Account</a>
     </nav>
     <div class="sell-container">
         <h2>Marketplace Listings</h2>
-        
-        <div class="filter-section">
-            <div style="display:flex; gap:10px; margin-bottom:12px;">
-                <button id="tabEfootball" class="tab-btn active" onclick="setCategory('eFootball')">🎮 eFootball</button>
-                <button id="tabSocial" class="tab-btn" onclick="setCategory('Social Media')">📱 Social Media</button>
+
+        <!-- Filters Grid -->
+        <div style="background:#161b22; border:1px solid #30363d; padding:15px; border-radius:10px; margin-bottom:20px;">
+            <div style="display:flex; gap:8px; margin-bottom:12px;">
+                <button style="background:#238636; color:#fff; border:none; padding:6px 12px; border-radius:6px; font-size:12px; font-weight:bold;">🎮 eFootball</button>
+                <button style="background:#21262d; color:#8b949e; border:1px solid #30363d; padding:6px 12px; border-radius:6px; font-size:12px;">📱 Social Media</button>
             </div>
-            <input type="text" id="searchInput" placeholder="Search accounts..." class="search-bar" onkeyup="renderMarketplace()">
-            
-            <div id="efootballFilters" class="filter-grid">
-                <select id="divFilter" class="search-bar" onchange="renderMarketplace()">
+            <input type="text" id="searchInput" placeholder="Search accounts..." style="width:100%; padding:10px; background:#0d1117; border:1px solid #30363d; color:#c9d1d9; border-radius:6px; margin-bottom:10px; box-sizing:border-box;">
+            <div style="display:flex; gap:10px;">
+                <select id="divisionFilter" style="flex:1; padding:8px; background:#0d1117; border:1px solid #30363d; color:#c9d1d9; border-radius:6px;">
                     <option value="">All Divisions</option>
-                    <option>Division 1</option>
-                    <option>Division 2</option>
-                    <option>Division 3</option>
+                    <option value="Division 1">Division 1</option>
+                    <option value="Division 2">Division 2</option>
+                    <option value="Division 3">Division 3</option>
                 </select>
-                <input type="number" id="ratingFilter" placeholder="Min Rating (e.g. 3000)" class="search-bar" onkeyup="renderMarketplace()">
+                <input type="number" id="ratingFilter" placeholder="Min Rating (e.g. 3000)" style="flex:1; padding:8px; background:#0d1117; border:1px solid #30363d; color:#c9d1d9; border-radius:6px;">
             </div>
         </div>
 
-        <div id="listingsGrid" class="listings-grid"></div>
+        <!-- Listings Container -->
+        <div id="listingsGrid"></div>
     </div>
     <script>
-        let currentCat = 'eFootball';
-
-        function setCategory(cat) {
-            currentCat = cat;
-            document.getElementById('tabEfootball').classList.toggle('active', cat === 'eFootball');
-            document.getElementById('tabSocial').classList.toggle('active', cat === 'Social Media');
-            document.getElementById('efootballFilters').style.display = cat === 'eFootball' ? 'grid' : 'none';
-            renderMarketplace();
-        }
-
-        function renderMarketplace() {
-            let list = JSON.parse(localStorage.getItem('realonaListings') || '[]');
-            let search = document.getElementById('searchInput').value.toLowerCase();
-            let div = document.getElementById('divFilter').value;
-            let minRating = Number(document.getElementById('ratingFilter').value || 0);
-
-            let filtered = list.filter((item, index) => {
-                item.originalIndex = index;
-                let matchCat = item.category === currentCat || (!item.category && currentCat === 'eFootball');
-                let matchSearch = item.title.toLowerCase().includes(search) || item.details.toLowerCase().includes(search);
-                
-                if (currentCat === 'eFootball') {
-                    let matchDiv = !div || (item.tag && item.tag.includes(div));
-                    let ovrMatch = item.details.match(/(\d+)\s*OVR/i);
-                    let ovrVal = ovrMatch ? Number(ovrMatch[1]) : 0;
-                    let matchRating = !minRating || ovrVal >= minRating;
-                    return matchCat && matchSearch && matchDiv && matchRating;
-                }
-                return matchCat && matchSearch;
-            });
-
-            let container = document.getElementById('listingsGrid');
-            if (filtered.length === 0) {
-                container.innerHTML = `<p style="color:#8b949e; text-align:center; width:100%; grid-column: 1/-1;">No listings available matching filters.</p>`;
-                return;
+        function loadMarketplace() {
+            // Update Auth Nav link if logged in
+            let currentUser = JSON.parse(localStorage.getItem('realonaCurrentUser') || '{}');
+            let navAuth = document.getElementById('navAuthLink');
+            if (currentUser.username) {
+                navAuth.innerText = '👤 ' + currentUser.username;
             }
 
-            container.innerHTML = filtered.map(item => `
-                <div class="card card-clickable" onclick="window.location.href='listing.html?id=${item.originalIndex}'">
-                    ${item.image ? `<img src="${item.image}" style="width:100%; height:160px; object-fit:cover; border-radius:8px; margin-bottom:10px;">` : ''}
-                    <h3>${item.title}</h3>
-                    <p class="details">${item.details}</p>
-                    <div class="card-row">
-                        <span class="card-price">${item.price}</span>
-                        <span style="font-size:12px; color:#58a6ff;">View Listing →</span>
+            let defaultListings = [
+                { title: 'eFootball Pro Account', details: '3000 OVR • Division 3 • Top Player: Messi', price: '₦4,000', status: 'Active' },
+                { title: 'eFootball Pro Account', details: '3000 OVR • Ronaldo', price: '₦3,000', status: 'Active' },
+                { title: 'eFootball Pro Account', details: '3000 OVR • Top Player: Messi', price: '₦2,000', status: 'Active' }
+            ];
+
+            let savedListings = JSON.parse(localStorage.getItem('realonaListings') || 'null');
+            if (!savedListings) {
+                localStorage.setItem('realonaListings', JSON.stringify(defaultListings));
+                savedListings = defaultListings;
+            }
+
+            let container = document.getElementById('listingsGrid');
+            let activeOnly = savedListings.filter(item => !item.status || item.status === 'Active');
+
+            if (activeOnly.length === 0) {
+                container.innerHTML = `<p style="color:#8b949e; text-align:center;">No accounts available right now.</p>`;
+            } else {
+                container.innerHTML = activeOnly.map((item, index) => `
+                    <div style="background:#161b22; border:1px solid #30363d; border-radius:12px; padding:15px; margin-bottom:15px;">
+                        <h3 style="margin:0 0 6px 0; font-size:16px; color:#c9d1d9;">${item.title}</h3>
+                        <p style="color:#8b949e; font-size:12px; margin:0 0 12px 0;">${item.details}</p>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-size:18px; font-weight:bold; color:#58a6ff;">${item.price}</span>
+                            <a href="buy.html?id=${index}" style="background:#21262d; border:1px solid #30363d; color:#58a6ff; padding:6px 12px; border-radius:6px; font-size:12px; text-decoration:none;">View Listing →</a>
+                        </div>
                     </div>
-                </div>
-            `).join('');
+                `).join('');
+            }
         }
 
-        renderMarketplace();
+        loadMarketplace();
     </script>
 </body>
 </html>
