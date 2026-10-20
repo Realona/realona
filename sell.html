@@ -6,179 +6,78 @@
     <title>Sell Account - Realona</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        .file-upload-wrapper {
-            position: relative;
-            width: 100%;
-            margin-bottom: 12px;
-        }
-        .file-upload-btn {
-            width: 100%;
-            padding: 12px;
-            background: #21262d;
-            border: 1px dashed #30363d;
-            border-radius: 8px;
-            color: #c9d1d9;
-            text-align: center;
-            font-size: 14px;
-            cursor: pointer;
-            display: block;
-            box-sizing: border-box;
-        }
-        .file-upload-wrapper input[type="file"] {
-            position: absolute;
-            left: 0;
-            top: 0;
-            opacity: 0;
-            width: 100%;
-            height: 100%;
-            cursor: pointer;
-        }
+        .form-card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 20px; max-width: 500px; margin: 20px auto; }
+        .form-group { margin-bottom: 15px; text-align: left; }
+        .form-group label { display: block; font-size: 13px; color: #8b949e; margin-bottom: 5px; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; background: #0d1117; border: 1px solid #30363d; color: #c9d1d9; border-radius: 6px; box-sizing: border-box; }
+        .btn-submit { width: 100%; padding: 12px; background: #238636; color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .back-link { color: #58a6ff; text-decoration: none; font-size: 13px; display: inline-block; margin-bottom: 10px; }
     </style>
 </head>
 <body>
     <nav>
         <a href="index.html">Home</a>
-        <a href="sell.html">Sell Account</a>
+        <a href="sell.html" style="color:#58a6ff;">Sell Account</a>
         <a href="dashboard.html">Dashboard</a>
         <a href="wallet.html">Wallet</a>
-        <a href="about.html">About</a>
+        <a href="auth.html">Account</a>
     </nav>
     <div class="sell-container">
-        <!-- Category Selection -->
-        <div id="step-category" class="sell-step">
-            <h2>Sell Your Account</h2>
-            <p style="color:#8b949e;">Choose the type of account you want to list.</p>
-            <div class="listings-grid">
-                <div class="card clickable" onclick="showStep('step-efootball')">
-                    <h3>🎮 eFootball Account</h3>
-                    <p class="details">Squad, top players, division rank, and Konami ID.</p>
-                    <button class="btn-escrow">Select →</button>
+        <a href="index.html" class="back-link">← Back</a>
+        <div class="form-card">
+            <h2 style="margin-bottom:15px; color:#c9d1d9;">Sell eFootball Account</h2>
+            <form onsubmit="handleSellSubmit(event)">
+                <div class="form-group">
+                    <label>Account Title / Top Players</label>
+                    <input type="text" id="sellTitle" required placeholder="e.g. 3000 OVR • Mbappe • Division 1">
                 </div>
-                <div class="card clickable" onclick="showStep('step-social-type')">
-                    <h3>📱 Social Media Account</h3>
-                    <p class="details">Instagram, TikTok, YouTube, Twitter/X, Facebook stats.</p>
-                    <button class="btn-escrow">Select →</button>
+                <div class="form-group">
+                    <label>Division</label>
+                    <select id="sellDivision">
+                        <option value="Division 1">Division 1</option>
+                        <option value="Division 2">Division 2</option>
+                        <option value="Division 3">Division 3</option>
+                    </select>
                 </div>
-            </div>
-        </div>
-
-        <!-- Social Media Option -->
-        <div id="step-social-type" class="sell-step" style="display:none;">
-            <button onclick="showStep('step-category')" class="btn-back">← Back</button>
-            <h2>Social Media Account</h2>
-            <p style="color:#8b949e;">How many accounts are you listing?</p>
-            <div class="listings-grid">
-                <div class="card clickable" onclick="showStep('step-social-form')">
-                    <h3>👤 Single Listing</h3>
-                    <p class="details">List one account with full details, credentials, and screenshots.</p>
-                    <button class="btn-escrow">Continue →</button>
+                <div class="form-group">
+                    <label>Price (₦)</label>
+                    <input type="text" id="sellPrice" required placeholder="e.g. ₦5,000">
                 </div>
-                <div class="card clickable" onclick="alert('Multiple listings feature coming soon!')">
-                    <h3>📦 Multiple Listings</h3>
-                    <p class="details">Upload screenshots for multiple accounts at once.</p>
-                    <button class="btn-escrow">Continue →</button>
+                <div class="form-group">
+                    <label>Account Login Email / ID</label>
+                    <input type="text" id="sellEmail" required placeholder="buyer@demo.com">
                 </div>
-            </div>
-        </div>
-        <!-- eFootball Form -->
-        <div id="step-efootball" class="sell-step" style="display:none;">
-            <button onclick="showStep('step-category')" class="btn-back">← Back</button>
-            <h2>Sell eFootball Account</h2>
-            <form onsubmit="handleSubmit(event, 'eFootball')" class="form-box">
-                <input type="text" id="playerInput" placeholder="Add Top Player (e.g. Bellingham)" class="search-bar">
-                <button type="button" onclick="addPlayer()" class="btn-add-player">+ Add Player</button>
-                <div id="playersContainer" style="margin: 8px 0;"></div>
-                
-                <select id="divRank" class="search-bar" style="margin-bottom:10px;">
-                    <option>Division 1</option><option>Division 2</option><option>Division 3</option>
-                </select>
-                <input type="number" id="squadRating" placeholder="Squad Rating (e.g. 3500)" class="search-bar" required style="margin-bottom:10px;">
-                <input type="number" id="price" placeholder="Price (₦)" class="search-bar" required style="margin-bottom:10px;">
-                
-                <div class="file-upload-wrapper">
-                    <div class="file-upload-btn" id="efootballFileLabel">📷 Upload Screenshot / Proof</div>
-                    <input type="file" id="imgFile" accept="image/*" onchange="handleImg(this, 'efootballFileLabel')">
+                <div class="form-group">
+                    <label>Account Password</label>
+                    <input type="password" id="sellPass" required placeholder="••••••••">
                 </div>
-                
-                <h3 style="margin-top:15px;">Account Credentials</h3>
-                <input type="email" id="konamiId" placeholder="Konami ID / Email" class="search-bar" required style="margin-bottom:10px;">
-                <input type="password" id="konamiPass" placeholder="Konami Password" class="search-bar" required style="margin-bottom:10px;">
-                <input type="text" id="otpCode" placeholder="Access Code / OTP (optional)" class="search-bar" style="margin-bottom:10px;">
-                <input type="email" id="recoveryEmail" placeholder="Recovery Email (optional)" class="search-bar">
-
-                <button type="submit" class="btn-escrow" style="margin-top:15px; width:100%;">List My eFootball Account</button>
-            </form>
-        </div>
-
-        <!-- Social Media Form -->
-        <div id="step-social-form" class="sell-step" style="display:none;">
-            <button onclick="showStep('step-social-type')" class="btn-back">← Back</button>
-            Replace/Sell Social Media Account
-            <h2>Sell Social Media Account</h2>
-            <form onsubmit="handleSubmit(event, 'Social Media')" class="form-box">
-                <select id="socialPlat" class="search-bar" style="margin-bottom:10px;" required>
-                    <option value="">Select Platform</option>
-                    <option>Instagram</option><option>TikTok</option><option>YouTube</option><option>Twitter/X</option><option>Facebook</option>
-                </select>
-                <input type="text" id="socialHandle" placeholder="Account Handle (@username)" class="search-bar" required style="margin-bottom:10px;">
-                <input type="text" id="socialStats" placeholder="Followers / Engagement Stats" class="search-bar" required style="margin-bottom:10px;">
-                <input type="number" id="socialPrice" placeholder="Price (₦)" class="search-bar" required style="margin-bottom:10px;">
-                
-                <div class="file-upload-wrapper">
-                    <div class="file-upload-btn" id="socialFileLabel">📷 Upload Screenshot / Proof</div>
-                    <input type="file" id="socialImgFile" accept="image/*" onchange="handleImg(this, 'socialFileLabel')">
-                </div>
-
-                <h3 style="margin-top:15px;">Account Credentials</h3>
-                <input type="email" id="socialEmail" placeholder="Account Email" class="search-bar" required style="margin-bottom:10px;">
-                <input type="password" id="socialPass" placeholder="Account Password" class="search-bar" required>
-
-                <button type="submit" class="btn-escrow" style="margin-top:15px; width:100%;">List My Social Media Account</button>
+                <button type="submit" class="btn-submit">List My eFootball Account</button>
             </form>
         </div>
     </div>
     <script>
-        let players = [], imgStr = '';
-        function showStep(id) {
-            document.querySelectorAll('.sell-step').forEach(e => e.style.display = 'none');
-            document.getElementById(id).style.display = 'block';
-            window.scrollTo(0,0);
-        }
-        function addPlayer() {
-            let i = document.getElementById('playerInput');
-            if(i.value.trim() && players.length < 5) { players.push(i.value.trim()); i.value=''; renderP(); }
-        }
-        function renderP() {
-            document.getElementById('playersContainer').innerHTML = players.map(p => `<span class="player-tag">${p}</span>`).join(' ');
-        }
-        function handleImg(input, labelId) {
-            if(input.files && input.files[0]) {
-                document.getElementById(labelId).innerText = "✅ " + input.files[0].name;
-                let r = new FileReader();
-                r.onload = e => imgStr = e.target.result;
-                r.readAsDataURL(input.files[0]);
-            }
-        }
-        function handleSubmit(e, cat) {
+        function handleSellSubmit(e) {
             e.preventDefault();
-            let item = cat === 'eFootball' ? {
+
+            let title = document.getElementById('sellTitle').value.trim();
+            let division = document.getElementById('sellDivision').value;
+            let price = document.getElementById('sellPrice').value.trim();
+
+            if (!price.includes('₦')) price = '₦' + price;
+
+            let newListing = {
                 title: 'eFootball Pro Account',
-                price: '₦' + Number(document.getElementById('price').value).toLocaleString(),
-                details: `${document.getElementById('squadRating').value} OVR • ${document.getElementById('divRank').value} • Top Player: ${players[0] || 'Squad'}`,
-                tag: document.getElementById('divRank').value,
-                category: 'eFootball', image: imgStr
-            } : {
-                title: `${document.getElementById('socialPlat').value} (${document.getElementById('socialHandle').value})`,
-                price: '₦' + Number(document.getElementById('socialPrice').value).toLocaleString(),
-                details: document.getElementById('socialStats').value,
-                tag: document.getElementById('socialPlat').value,
-                category: 'Social Media', image: imgStr
+                details: title + ' • ' + division,
+                price: price,
+                status: 'Active',
+                category: 'eFootball'
             };
 
-            let list = JSON.parse(localStorage.getItem('realonaListings') || '[]');
-            list.unshift(item);
-            localStorage.setItem('realonaListings', JSON.stringify(list));
-            alert(cat + ' account listed successfully!');
+            let existingListings = JSON.parse(localStorage.getItem('realonaListings') || '[]');
+            existingListings.unshift(newListing); // Add new item to top
+            localStorage.setItem('realonaListings', JSON.stringify(existingListings));
+
+            alert('✅ Your account has been listed successfully!');
             window.location.href = 'index.html';
         }
     </script>
