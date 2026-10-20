@@ -61,3 +61,41 @@
     </script>
 </body>
 </html>
+    <script>
+        function renderListing() {
+            // Get index ID from URL query string
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get('id') || 0;
+
+            let listings = JSON.parse(localStorage.getItem('realonaListings') || '[]');
+            
+            // Default fallback if array is empty
+            if (listings.length === 0) {
+                listings = [
+                    { title: 'eFootball Pro Account', details: '3000 OVR • Division 3 • Top Player: Messi', price: '₦4,000', image: '' },
+                    { title: 'eFootball Pro Account', details: '3000 OVR • Division 1 • Ronaldo', price: '₦3,000', image: '' },
+                    { title: 'eFootball Pro Account', details: '3000 OVR • Division 2 • Top Player: Messi', price: '₦2,000', image: '' }
+                ];
+                localStorage.setItem('realonaListings', JSON.stringify(listings));
+            }
+
+            let item = listings[id] || listings[0];
+
+            if (item) {
+                document.getElementById('itemTitle').innerText = item.title;
+                document.getElementById('itemDetails').innerText = item.details;
+                document.getElementById('itemPrice').innerText = item.price;
+                
+                if (item.image) {
+                    document.getElementById('itemImg').src = item.image;
+                }
+
+                // Direct "Buy via Escrow" link to buy.html with matching ID
+                document.getElementById('buyBtnLink').href = 'buy.html?id=' + id;
+            }
+        }
+
+        renderListing();
+    </script>
+</body>
+</html>
