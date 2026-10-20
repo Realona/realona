@@ -6,10 +6,15 @@
     <title>Escrow Checkout - Realona</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        .checkout-box { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 20px; margin-top: 15px; }
-        .cred-box { background: #0d1117; border: 1px solid #238636; border-radius: 8px; padding: 15px; margin-top: 15px; }
-        .badge-escrow { background: #d29922; color: #000; padding: 4px 10px; border-radius: 12px; font-weight: bold; font-size: 12px; }
-        .badge-success { background: #238636; color: #fff; padding: 4px 10px; border-radius: 12px; font-weight: bold; font-size: 12px; }
+        .checkout-card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 20px; margin-bottom: 15px; }
+        .chat-box { background: #0d1117; border: 1px solid #30363d; border-radius: 10px; padding: 12px; height: 220px; overflow-y: auto; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; }
+        .chat-msg { background: #21262d; border: 1px solid #30363d; color: #c9d1d9; padding: 8px 12px; border-radius: 8px; max-width: 80%; font-size: 13px; }
+        .chat-msg.buyer { align-self: flex-end; background: #1f6feb22; border-color: #1f6feb; color: #58a6ff; }
+        .chat-msg.system { align-self: center; background: #23863622; border-color: #238636; color: #3fb950; text-align: center; font-size: 11px; max-width: 95%; }
+        .chat-input-row { display: flex; gap: 8px; }
+        .chat-input { flex: 1; padding: 10px; background: #0d1117; border: 1px solid #30363d; color: #c9d1d9; border-radius: 6px; }
+        .btn-send { background: #238636; color: #fff; border: none; padding: 0 16px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .btn-dispute { background: #da3633; color: #fff; border: none; width: 100%; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -21,103 +26,102 @@
         <a href="about.html">About</a>
     </nav>
     <div class="sell-container">
-        <h2>🔒 Escrow Checkout</h2>
-        
-        <div id="checkoutView">
-            <div class="checkout-box">
-                <h3 id="itemTitle">Account Title</h3>
-                <p id="itemDetails" style="color: #8b949e; font-size: 14px; margin: 5px 0;"></p>
-                <div id="itemPrice" style="font-size: 24px; font-weight: bold; color: #58a6ff; margin: 10px 0;">₦0</div>
-                <div style="font-size: 13px; color: #8b949e;">Your Available Balance: <strong id="buyerBalance" style="color:#c9d1d9;">₦0</strong></div>
-            </div>
+        <h2>🔒 Escrow Checkout & Active Trade</h2>
 
-            <button onclick="processEscrowPay()" class="btn-escrow" style="width: 100%; margin-top: 15px; padding: 14px;">Pay & Hold Funds in Escrow</button>
+        <div class="checkout-card">
+            <h3 id="itemTitle">Loading...</h3>
+            <p id="itemDetails" style="color:#8b949e; font-size:13px; margin:4px 0 10px 0;"></p>
+            <div style="font-size:22px; font-weight:bold; color:#58a6ff; margin-bottom:12px;" id="itemPrice">₦0</div>
+            
+            <button id="payBtn" onclick="processPayment()" class="btn-escrow" style="width:100%; padding:12px; background:#238636; border:none; color:#fff; font-weight:bold; border-radius:6px; cursor:pointer;">Pay & Hold Funds in Escrow</button>
         </div>
 
-        <div id="escrowActiveView" style="display:none;">
-            <div class="checkout-box">
-                <div style="display:flex; justify-size:space-between; align-items:center; margin-bottom:10px;">
-                    <h3>Status: Active Trade</h3>
-                    <span id="tradeBadge" class="badge-escrow">FUNDS IN ESCROW</span>
-                </div>
-                <p style="font-size: 13px; color: #8b949e;">Funds are locked safely in Realona Escrow. Review credentials below and test logging in before releasing payment.</p>
-
-                <div class="cred-box">
-                    <h4 style="color: #3fb950; margin-bottom: 8px;">🔑 Account Login Credentials</h4>
-                    <div id="credDetails" style="font-family: monospace; font-size: 14px; color: #c9d1d9; line-height: 1.6;">
-                        <!-- Decrypted credentials pop in here -->
-                    </div>
-                </div>
-
-                <div style="margin-top: 20px; display: flex; gap: 10px;">
-                    <button onclick="releaseEscrowPayout()" class="btn-escrow" style="flex:1; background:#238636;">Confirm & Release Payout</button>
-                    <button onclick="raiseDispute()" class="btn-escrow" style="flex:1; background:#da3633;">Raise Dispute</button>
-                </div>
+        <!-- Chat / Dispute System -->
+        <div class="checkout-card">
+            <h3 style="margin-bottom:10px; font-size:15px;">💬 Trade Chat & Escalation</h3>
+            <div id="chatMessages" class="chat-box">
+                <div class="chat-msg system">Escrow chat initialized. Pay into escrow to start trading credentials safely.</div>
             </div>
+            
+            <div class="chat-input-row">
+                <input type="text" id="msgText" class="chat-input" placeholder="Type a message to buyer/seller...">
+                <button onclick="sendMessage()" class="btn-send">Send</button>
+            </div>
+
+            <button onclick="raiseDispute()" class="btn-dispute">🚩 Raise Trade Dispute</button>
         </div>
     </div>
     <script>
         const urlParams = new URLSearchParams(window.location.search);
-        const itemIndex = urlParams.get('id') || 0;
+        const id = urlParams.get('id') || 0;
 
-        let listings = JSON.parse(localStorage.getItem('realonaListings') || '[]');
-        let currentItem = listings[itemIndex] || { title: 'Sample Account', price: '₦10,000', details: 'Pro Account', category: 'eFootball' };
+        let list = JSON.parse(localStorage.getItem('realonaListings') || '[]');
+        let item = list[id];
 
-        let walletBalance = Number(localStorage.getItem('realonaWalletBalance') || 0);
+        if (item) {
+            document.getElementById('itemTitle').innerText = item.title;
+            document.getElementById('itemDetails').innerText = item.details;
+            document.getElementById('itemPrice').innerText = item.price;
+        }
 
-        document.getElementById('itemTitle').innerText = currentItem.title;
-        document.getElementById('itemDetails').innerText = currentItem.details;
-        document.getElementById('itemPrice').innerText = currentItem.price;
-        document.getElementById('buyerBalance').innerText = '₦' + walletBalance.toLocaleString();
+        function processPayment() {
+            let balance = Number(localStorage.getItem('realonaWalletBalance') || '0');
+            let itemPriceNum = Number((item ? item.price : '0').replace(/[^0-9]/g, '')) || 0;
 
-        function processEscrowPay() {
-            let numericPrice = Number(currentItem.price.replace(/[^0-9.-]+/g,"")) || 0;
-
-            if (walletBalance < numericPrice) {
-                if (confirm('Insufficient wallet balance! Would you like to go to your Wallet to deposit funds?')) {
-                    window.location.href = 'wallet.html';
-                }
+            if (balance < itemPriceNum) {
+                alert('Insufficient wallet balance! Please top up your wallet first.');
+                window.location.href = 'wallet.html';
                 return;
             }
 
-            // Deduct balance and set in escrow
-            walletBalance -= numericPrice;
-            localStorage.setItem('realonaWalletBalance', walletBalance);
-            
-            currentItem.status = 'In Escrow';
-            listings[itemIndex] = currentItem;
-            localStorage.setItem('realonaListings', JSON.stringify(listings));
+            // Deduct balance and update item status
+            localStorage.setItem('realonaWalletBalance', balance - itemPriceNum);
+            if (item) {
+                item.status = 'In Escrow';
+                list[id] = item;
+                localStorage.setItem('realonaListings', JSON.stringify(list));
+            }
 
-            showEscrowActiveView();
+            document.getElementById('payBtn').innerText = '✅ Funds Secured in Escrow';
+            document.getElementById('payBtn').disabled = true;
+            document.getElementById('payBtn').style.background = '#30363d';
+
+            appendSystemMsg('Funds held safely in Escrow! Credentials released: Check your account dashboard or verify details with seller below.');
         }
 
-        function showEscrowActiveView() {
-            document.getElementById('checkoutView').style.display = 'none';
-            document.getElementById('escrowActiveView').style.display = 'block';
+        function sendMessage() {
+            let input = document.getElementById('msgText');
+            let txt = input.value.trim();
+            if (!txt) return;
 
-            // Retrieve credentials saved during listing
-            let creds = currentItem.category === 'eFootball' ? `
-                <strong>Konami ID:</strong> demo_seller@gmail.com<br>
-                <strong>Password:</strong> RealonaPass2026!<br>
-                <strong>Recovery Email:</strong> demo_recovery@gmail.com
-            ` : `
-                <strong>Email:</strong> social_seller@gmail.com<br>
-                <strong>Password:</strong> SecureSocial99!
-            `;
+            let chatBox = document.getElementById('chatMessages');
+            let msgDiv = document.createElement('div');
+            msgDiv.className = 'chat-msg buyer';
+            msgDiv.innerHTML = `<strong>You:</strong> ${txt}`;
+            chatBox.appendChild(msgDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
 
-            document.getElementById('credDetails').innerHTML = creds;
+            input.value = '';
         }
 
-        function releaseEscrowPayout() {
-            alert('Trade Completed! Funds have been released to the seller.');
-            currentItem.status = 'Sold';
-            listings[itemIndex] = currentItem;
-            localStorage.setItem('realonaListings', JSON.stringify(listings));
-            window.location.href = 'dashboard.html';
+        function appendSystemMsg(msg) {
+            let chatBox = document.getElementById('chatMessages');
+            let msgDiv = document.createElement('div');
+            msgDiv.className = 'chat-msg system';
+            msgDiv.innerText = msg;
+            chatBox.appendChild(msgDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
         }
 
         function raiseDispute() {
-            alert('Dispute opened! Our Realona support agent will review your trade details shortly.');
+            if (confirm('Are you sure you want to escalate this trade to Realona Support?')) {
+                if (item) {
+                    item.status = 'Disputed';
+                    list[id] = item;
+                    localStorage.setItem('realonaListings', JSON.stringify(list));
+                }
+                appendSystemMsg('⚠️ Dispute Raised! A Realona Support admin has been notified and joined this room.');
+            }
         }
     </script>
 </body>
