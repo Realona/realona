@@ -6,15 +6,10 @@
     <title>Listing Details - Realona</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        .details-card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 20px; margin-bottom: 15px; }
-        .img-container { width: 100%; height: 260px; border-radius: 8px; overflow: hidden; margin-bottom: 15px; cursor: pointer; border: 1px solid #30363d; position: relative; background: #0d1117; }
-        .img-container img { width: 100%; height: 100%; object-fit: contain; }
-        .img-hint { position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.8); color: #fff; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; }
-        
-        .lightbox { display: none; position: fixed; z-index: 999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); justify-content: center; align-items: center; }
-        .lightbox img { max-width: 98%; max-height: 90%; border-radius: 8px; object-fit: contain; }
-        .lightbox-close { position: absolute; top: 20px; right: 20px; color: #fff; font-size: 32px; cursor: pointer; background: rgba(0,0,0,0.5); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-        .btn-buy-now { background: #238636; color: #fff; border: none; width: 100%; padding: 14px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; text-decoration: none; display: block; text-align: center; margin-top: 15px; }
+        .listing-card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 20px; margin-top: 15px; }
+        .img-preview { width: 100%; max-height: 250px; object-fit: cover; border-radius: 8px; border: 1px solid #30363d; margin-bottom: 15px; display: block; }
+        .btn-buy { display: block; width: 100%; text-align: center; padding: 12px; background: #238636; color: #fff; font-weight: bold; border-radius: 6px; text-decoration: none; margin-top: 15px; border: none; cursor: pointer; box-sizing: border-box; }
+        .back-link { color: #58a6ff; text-decoration: none; font-size: 13px; display: inline-block; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -23,62 +18,46 @@
         <a href="sell.html">Sell Account</a>
         <a href="dashboard.html">Dashboard</a>
         <a href="wallet.html">Wallet</a>
-        <a href="about.html">About</a>
+        <a href="auth.html">Account</a>
     </nav>
     <div class="sell-container">
-        <a href="index.html" style="color:#58a6ff; text-decoration:none; font-size:14px;">← Back to Marketplace</a>
-        
-        <div class="details-card" style="margin-top:15px;">
-            <div id="imgWrapper" class="img-container" onclick="openLightbox()">
-                <img id="listingImg" src="" alt="Proof Screenshot">
-                <div class="img-hint">🔍 Tap to View Full Screenshot</div>
+        <a href="index.html" class="back-link">← Back to Marketplace</a>
+        <div class="listing-card">
+            <img id="itemImg" src="https://via.placeholder.com/600x300/161b22/58a6ff?text=eFootball+Account+Preview" class="img-preview" alt="Preview">
+            <h2 id="itemTitle" style="margin: 0 0 8px 0; color:#c9d1d9;">eFootball Pro Account</h2>
+            <p id="itemDetails" style="color:#8b949e; font-size:14px; margin: 0 0 15px 0;">3000 OVR • Division 3 • Top Player: Messi</p>
+            <div style="font-size: 24px; font-weight: bold; color: #58a6ff; margin-bottom: 15px;" id="itemPrice">₦4,000</div>
+            <div style="background:#0d1117; border:1px solid #30363d; padding:12px; border-radius:8px; font-size:13px; color:#8b949e; margin-bottom:15px;">
+                🛡️ <strong>Realona Escrow Protection:</strong> Funds are held securely until you verify and log into the account.
             </div>
-
-            <h2 id="listingTitle">Loading...</h2>
-            <p id="listingDetails" style="color:#8b949e; margin: 6px 0 12px 0;"></p>
-            
-            <div style="font-size:26px; font-weight:bold; color:#58a6ff;" id="listingPrice">₦0</div>
-
-            <!-- Green Buy via Escrow Button -->
-            <a id="buyEscrowBtn" href="#" class="btn-buy-now">Buy via Escrow</a>
+            <a id="buyBtnLink" href="#" class="btn-buy">Buy via Escrow</a>
         </div>
     </div>
-    <!-- Lightbox Modal -->
-    <div id="lightbox" class="lightbox" onclick="closeLightbox()">
-        <span class="lightbox-close">&times;</span>
-        <img id="lightboxImg" src="">
-    </div>
-
     <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const id = urlParams.get('id') || 0;
-
-        let list = JSON.parse(localStorage.getItem('realonaListings') || '[]');
-        let item = list[id];
-
-        if (item) {
-            document.getElementById('listingTitle').innerText = item.title;
-            document.getElementById('listingDetails').innerText = item.details;
-            document.getElementById('listingPrice').innerText = item.price;
-            document.getElementById('buyEscrowBtn').href = 'buy.html?id=' + id;
-
-            if (item.image) {
-                document.getElementById('listingImg').src = item.image;
-                document.getElementById('lightboxImg').src = item.image;
-            } else {
-                document.getElementById('imgWrapper').style.display = 'none';
+        function renderListing() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get('id') || 0;
+            let listings = JSON.parse(localStorage.getItem('realonaListings') || '[]');
+            
+            if (listings.length === 0) {
+                listings = [
+                    { title: 'eFootball Pro Account', details: '3000 OVR • Division 3 • Top Player: Messi', price: '₦4,000', image: '' },
+                    { title: 'eFootball Pro Account', details: '3000 OVR • Division 1 • Ronaldo', price: '₦3,000', image: '' },
+                    { title: 'eFootball Pro Account', details: '3000 OVR • Division 2 • Top Player: Messi', price: '₦2,000', image: '' }
+                ];
+                localStorage.setItem('realonaListings', JSON.stringify(listings));
             }
-        } else {
-            document.getElementById('listingTitle').innerText = 'Listing Not Found';
-        }
 
-        function openLightbox() {
-            document.getElementById('lightbox').style.display = 'flex';
+            let item = listings[id] || listings[0];
+            if (item) {
+                document.getElementById('itemTitle').innerText = item.title;
+                document.getElementById('itemDetails').innerText = item.details;
+                document.getElementById('itemPrice').innerText = item.price;
+                if (item.image) document.getElementById('itemImg').src = item.image;
+                document.getElementById('buyBtnLink').href = 'buy.html?id=' + id;
+            }
         }
-
-        function closeLightbox() {
-            document.getElementById('lightbox').style.display = 'none';
-        }
+        renderListing();
     </script>
 </body>
 </html>
