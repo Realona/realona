@@ -10,6 +10,7 @@
         .form-group { margin-bottom: 15px; text-align: left; }
         .form-group label { display: block; font-size: 13px; color: #8b949e; margin-bottom: 5px; }
         .form-group input, .form-group select { width: 100%; padding: 10px; background: #0d1117; border: 1px solid #30363d; color: #c9d1d9; border-radius: 6px; box-sizing: border-box; }
+        .tag-badge { display: inline-block; background: #1f6feb; color: #fff; padding: 4px 8px; border-radius: 12px; font-size: 12px; margin-right: 5px; margin-top: 5px; }
         .btn-submit { width: 100%; padding: 12px; background: #238636; color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
         .back-link { color: #58a6ff; text-decoration: none; font-size: 13px; display: inline-block; margin-bottom: 10px; }
     </style>
@@ -28,9 +29,14 @@
             <h2 style="margin-bottom:15px; color:#c9d1d9;">Sell eFootball Account</h2>
             <form onsubmit="handleSellSubmit(event)">
                 <div class="form-group">
-                    <label>Account Title / Top Players</label>
-                    <input type="text" id="sellTitle" required placeholder="e.g. 3000 OVR • Mbappe • Division 1">
+                    <label>Add Top Player (e.g. Bellingham, Messi)</label>
+                    <div style="display:flex; gap:8px;">
+                        <input type="text" id="playerInput" placeholder="Enter player name">
+                        <button type="button" onclick="addPlayerTag()" style="background:#21262d; border:1px solid #30363d; color:#58a6ff; padding:8px 12px; border-radius:6px; cursor:pointer; font-weight:bold;">+ Add</button>
+                    </div>
+                    <div id="playerTagsContainer"></div>
                 </div>
+
                 <div class="form-group">
                     <label>Division</label>
                     <select id="sellDivision">
@@ -39,45 +45,94 @@
                         <option value="Division 3">Division 3</option>
                     </select>
                 </div>
+
+                <div class="form-group">
+                    <label>Squad Rating (OVR)</label>
+                    <input type="number" id="sellRating" placeholder="3000" required>
+                </div>
+
                 <div class="form-group">
                     <label>Price (₦)</label>
-                    <input type="text" id="sellPrice" required placeholder="e.g. ₦5,000">
+                    <input type="text" id="sellPrice" required placeholder="₦5,000">
                 </div>
+
                 <div class="form-group">
-                    <label>Account Login Email / ID</label>
+                    <label>Account Screenshot</label>
+                    <input type="file" id="sellImage" accept="image/*" onchange="previewFile()">
+                </div>
+
+                <h4 style="color:#c9d1d9; margin: 15px 0 10px 0;">Account Credentials</h4>
+                <div class="form-group">
+                    <label>Login Email / ID</label>
                     <input type="text" id="sellEmail" required placeholder="buyer@demo.com">
                 </div>
                 <div class="form-group">
-                    <label>Account Password</label>
+                    <label>Password</label>
                     <input type="password" id="sellPass" required placeholder="••••••••">
                 </div>
+
                 <button type="submit" class="btn-submit">List My eFootball Account</button>
             </form>
         </div>
     </div>
     <script>
+        let playerTags = [];
+        let imageBase64 = '';
+
+        function addPlayerTag() {
+            let input = document.getElementById('playerInput');
+            let val = input.value.trim();
+            if (val && !playerTags.includes(val)) {
+                playerTags.push(val);
+                renderTags();
+                input.value = '';
+            }
+        }
+
+        function renderTags() {
+            let container = document.getElementById('playerTagsContainer');
+            container.innerHTML = playerTags.map(t => `<span class="tag-badge">${t}</span>`).join('');
+        }
+
+        function previewFile() {
+            let file = document.getElementById('sellImage').files[0];
+            if (file) {
+                let reader = new FileReader();
+                reader.onloadend = function() {
+                    imageBase64 = reader.result;
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
         function handleSellSubmit(e) {
             e.preventDefault();
 
-            let title = document.getElementById('sellTitle').value.trim();
             let division = document.getElementById('sellDivision').value;
+            let rating = document.getElementById('sellRating').value.trim();
             let price = document.getElementById('sellPrice').value.trim();
+            let email = document.getElementById('sellEmail').value.trim();
+            let pass = document.getElementById('sellPass').value;
 
             if (!price.includes('₦')) price = '₦' + price;
 
+            let detailsString = `${rating} OVR • ${division}` + (playerTags.length ? ` • Top Players: ${playerTags.join(', ')}` : '');
+
             let newListing = {
                 title: 'eFootball Pro Account',
-                details: title + ' • ' + division,
+                details: detailsString,
                 price: price,
                 status: 'Active',
-                category: 'eFootball'
+                category: 'eFootball',
+                image: imageBase64,
+                credentials: { email, pass }
             };
 
             let existingListings = JSON.parse(localStorage.getItem('realonaListings') || '[]');
-            existingListings.unshift(newListing); // Add new item to top
+            existingListings.unshift(newListing);
             localStorage.setItem('realonaListings', JSON.stringify(existingListings));
 
-            alert('✅ Your account has been listed successfully!');
+            alert('✅ Your account has been listed successfully with screenshots & players!');
             window.location.href = 'index.html';
         }
     </script>
