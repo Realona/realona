@@ -126,3 +126,24 @@
     </script>
 </body>
 </html>
+<script>
+    // Hook email notification to checkout
+    const originalProcessPayment = processPayment;
+    processPayment = async function() {
+        originalProcessPayment();
+
+        try {
+            await fetch('http://localhost:5000/api/notify-escrow', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    itemTitle: item ? item.title : 'Account Purchase',
+                    price: item ? item.price : '₦0'
+                })
+            });
+            appendSystemMsg('📧 Email notification dispatched to buyer and seller!');
+        } catch(e) {
+            console.log('Escrow notification failed:', e);
+        }
+    };
+</script>
