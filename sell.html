@@ -106,42 +106,41 @@
             if (!price.includes('₦')) price = '₦' + price;
             let detailsString = `${rating} OVR • ${division}` + (playerTags.length ? ` • Top Players: ${playerTags.join(', ')}` : '');
 
-            function saveAndRedirect(imgData) {
-                let newListing = {
-                    title: 'eFootball Pro Account',
-                    details: detailsString,
-                    price: price,
-                    status: 'Active',
-                    category: 'eFootball',
-                    image: imgData || '',
-                    credentials: { email, pass }
-                };
+            function saveListing(imgBase64) {
+                try {
+                    let newListing = {
+                        title: 'eFootball Pro Account',
+                        details: detailsString,
+                        price: price,
+                        status: 'Active',
+                        category: 'eFootball',
+                        image: imgBase64 || '',
+                        credentials: { email, pass }
+                    };
 
-                let existingListings = JSON.parse(localStorage.getItem('realonaListings') || '[]');
-                existingListings.unshift(newListing);
-                localStorage.setItem('realonaListings', JSON.stringify(existingListings));
+                    let existingListings = JSON.parse(localStorage.getItem('realonaListings') || '[]');
+                    existingListings.unshift(newListing);
+                    localStorage.setItem('realonaListings', JSON.stringify(existingListings));
 
-                alert('✅ Account listed successfully!');
-                window.location.href = 'index.html';
+                    alert('✅ Account listed successfully!');
+                    window.location.href = 'index.html';
+                } catch (err) {
+                    alert('Error saving listing: ' + err.message);
+                }
             }
 
-            if (fileInput.files[0]) {
+            if (fileInput.files && fileInput.files[0]) {
                 let reader = new FileReader();
                 reader.onload = function(evt) {
-                    let img = new Image();
-                    img.onload = function() {
-                        let canvas = document.createElement('canvas');
-                        let ctx = canvas.getContext('2d');
-                        canvas.width = 600;
-                        canvas.height = (img.height / img.width) * 600;
-                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                        saveAndRedirect(canvas.toDataURL('image/jpeg', 0.7));
-                    };
-                    img.src = evt.target.result;
+                    saveListing(evt.target.result);
+                };
+                reader.onerror = function() {
+                    alert('Failed to read image file. Publishing without image.');
+                    saveListing('');
                 };
                 reader.readAsDataURL(fileInput.files[0]);
             } else {
-                saveAndRedirect('');
+                saveListing('');
             }
         });
     </script>
