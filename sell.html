@@ -106,7 +106,7 @@
             if (!price.includes('₦')) price = '₦' + price;
             let detailsString = `${rating} OVR • ${division}` + (playerTags.length ? ` • Top Players: ${playerTags.join(', ')}` : '');
 
-            function saveListing(imgBase64) {
+            function finalizeListing(imgData) {
                 try {
                     let newListing = {
                         title: 'eFootball Pro Account',
@@ -114,7 +114,7 @@
                         price: price,
                         status: 'Active',
                         category: 'eFootball',
-                        image: imgBase64 || '',
+                        image: imgData || '',
                         credentials: { email, pass }
                     };
 
@@ -122,25 +122,40 @@
                     existingListings.unshift(newListing);
                     localStorage.setItem('realonaListings', JSON.stringify(existingListings));
 
-                    alert('✅ Account listed successfully!');
+                    alert('✅ Account listed successfully with image!');
                     window.location.href = 'index.html';
                 } catch (err) {
-                    alert('Error saving listing: ' + err.message);
+                    alert('Storage limit reached. Try a smaller image or list without image.');
                 }
             }
 
             if (fileInput.files && fileInput.files[0]) {
                 let reader = new FileReader();
                 reader.onload = function(evt) {
-                    saveListing(evt.target.result);
-                };
-                reader.onerror = function() {
-                    alert('Failed to read image file. Publishing without image.');
-                    saveListing('');
+                    let img = new Image();
+                    img.onload = function() {
+                        let canvas = document.createElement('canvas');
+                        let ctx = canvas.getContext('2d');
+                        let maxDim = 800;
+                        let w = img.width;
+                        let h = img.height;
+
+                        if (w > h) {
+                            if (w > maxDim) { h *= maxDim / w; w = maxDim; }
+                        } else {
+                            if (h > maxDim) { w *= maxDim / h; h = maxDim; }
+                        }
+
+                        canvas.width = w;
+                        canvas.height = h;
+                        ctx.drawImage(img, 0, 0, w, h);
+                        finalizeListing(canvas.toDataURL('image/jpeg', 0.8));
+                    };
+                    img.src = evt.target.result;
                 };
                 reader.readAsDataURL(fileInput.files[0]);
             } else {
-                saveListing('');
+                finalizeListing('');
             }
         });
     </script>
