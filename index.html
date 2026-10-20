@@ -76,7 +76,7 @@
             let division = document.getElementById('divisionFilter').value;
             let minRating = Number(document.getElementById('ratingFilter').value) || 0;
 
-            let filtered = listings.filter(item => {
+            let filtered = listings.map((item, index) => ({ ...item, originalIndex: index })).filter(item => {
                 let isNotSold = (!item.status || item.status === 'Active');
                 let matchesCat = !item.category || item.category === currentCategory;
                 let matchesSearch = (item.title + ' ' + item.details).toLowerCase().includes(search);
@@ -96,22 +96,16 @@
             if (filtered.length === 0) {
                 container.innerHTML = `<p style="color:#8b949e; text-align:center; padding: 20px;">No matching listings found.</p>`;
             } else {
-                container.innerHTML = filtered.map((item) => {
-                    // Find original index for linking correctly
-                    let allListings = listings;
-                    let originalIndex = allListings.findIndex(l => l.title === item.title && l.details === item.details);
-
-                    return `
-                        <div style="background:#161b22; border:1px solid #30363d; border-radius:12px; padding:15px; margin-bottom:15px;">
-                            <h3 style="margin:0 0 6px 0; font-size:16px; color:#c9d1d9;">${item.title}</h3>
-                            <p style="color:#8b949e; font-size:12px; margin:0 0 12px 0;">${item.details}</p>
-                            <div style="display:flex; justify-content:space-between; align-items:center;">
-                                <span style="font-size:18px; font-weight:bold; color:#58a6ff;">${item.price}</span>
-                                <a href="buy.html?id=${originalIndex}" style="background:#21262d; border:1px solid #30363d; color:#58a6ff; padding:6px 12px; border-radius:6px; font-size:12px; text-decoration:none;">View Listing →</a>
-                            </div>
+                container.innerHTML = filtered.map((item) => `
+                    <div style="background:#161b22; border:1px solid #30363d; border-radius:12px; padding:15px; margin-bottom:15px;">
+                        <h3 style="margin:0 0 6px 0; font-size:16px; color:#c9d1d9;">${item.title}</h3>
+                        <p style="color:#8b949e; font-size:12px; margin:0 0 12px 0;">${item.details}</p>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-size:18px; font-weight:bold; color:#58a6ff;">${item.price}</span>
+                            <a href="listing.html?id=${item.originalIndex}" style="background:#21262d; border:1px solid #30363d; color:#58a6ff; padding:6px 12px; border-radius:6px; font-size:12px; text-decoration:none;">View Listing →</a>
                         </div>
-                    `;
-                }).join('');
+                    </div>
+                `).join('');
             }
         }
 
