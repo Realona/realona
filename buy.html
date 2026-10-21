@@ -6,13 +6,14 @@
     <title>Escrow Room - Realona</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        .escrow-container { max-width: 650px; margin: 20px auto; padding: 0 15px; text-align: left; }
+        .escrow-container { max-width: 600px; margin: 20px auto; padding: 0 15px; text-align: left; }
         .escrow-card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 20px; margin-bottom: 15px; }
-        .chat-box { background: #0d1117; border: 1px solid #30363d; border-radius: 8px; height: 260px; overflow-y: auto; padding: 12px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 8px; }
+        .chat-box { background: #0d1117; border: 1px solid #30363d; border-radius: 8px; height: 250px; overflow-y: auto; padding: 12px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 8px; }
         .chat-msg { padding: 8px 12px; border-radius: 6px; max-width: 80%; font-size: 13px; }
         .chat-msg.me { background: #1f6feb; color: #fff; align-self: flex-end; }
         .chat-msg.other { background: #21262d; border: 1px solid #30363d; color: #c9d1d9; align-self: flex-start; }
         .chat-msg.system { background: #23863622; border: 1px solid #238636; color: #3fb950; align-self: center; text-align: center; width: 100%; font-size: 12px; }
+        .cred-box { background: #0d1117; border: 1px dashed #238636; color: #3fb950; padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 13px; font-weight: bold; }
         .chat-input-area { display: flex; gap: 8px; }
         .chat-input-area input { flex: 1; padding: 10px; background: #0d1117; border: 1px solid #30363d; color: #c9d1d9; border-radius: 6px; }
         .btn-send { background: #238636; color: #fff; border: none; padding: 10px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; }
@@ -37,6 +38,9 @@
                 <div id="itemPrice" style="color:#58a6ff; font-weight:bold; font-size:14px;">₦0</div>
             </div>
 
+            <!-- Credentials Area Always Visible for Buyer & Seller -->
+            <div class="cred-box" id="credentialsArea">🔑 Credentials: Loading...</div>
+
             <div class="chat-box" id="chatMessages"></div>
 
             <div class="chat-input-area">
@@ -49,73 +53,11 @@
             </div>
         </div>
     </div>
-    <script>
-        let urlParams = new URLSearchParams(window.location.search);
-        let listingId = urlParams.get('id');
-        let currentUser = JSON.parse(localStorage.getItem('realonaCurrentUser') || 'null');
-
-        if (!currentUser || !currentUser.email) {
-            alert('Please sign in first.');
-            window.location.href = 'auth.html';
-        }
-
-        let listings = JSON.parse(localStorage.getItem('realonaListings') || '[]');
-        let item = listings[listingId];
-
-        if (!item) {
-            alert('Listing not found!');
-            window.location.href = 'index.html';
-        }
-
-        document.getElementById('itemTitle').innerText = item.title;
-        document.getElementById('itemPrice').innerText = item.price;
-
-        let tradeId = 'TRADE-' + listingId;
-        let buyerEmail = currentUser.email.toLowerCase().trim();
-        let sellerEmail = (item.sellerEmail || '').toLowerCase().trim();
-
-        let trades = JSON.parse(localStorage.getItem('realona_trades') || '[]');
-        let existingTrade = trades.find(t => t.tradeId === tradeId);
-
-        if (!existingTrade) {
-            let walletKey = 'realona_wallet_' + buyerEmail;
-            let currentBal = parseFloat(localStorage.getItem(walletKey) || '0');
-            let itemPriceNum = parseFloat(item.price.replace(/[^0-9.-]+/g, '')) || 0;
-
-            if (currentBal >= itemPriceNum && buyerEmail !== sellerEmail) {
-                localStorage.setItem(walletKey, (currentBal - itemPriceNum).toString());
-            }
-
-            existingTrade = {
-                tradeId: tradeId,
-                listingId: listingId,
-                title: item.title,
-                price: item.price,
-                priceNum: itemPriceNum,
-                buyerEmail: buyerEmail,
-                buyerName: currentUser.username || 'Buyer',
-                sellerEmail: sellerEmail,
-                status: 'In Escrow'
-            };
-            trades.push(existingTrade);
-            localStorage.setItem('realona_trades', JSON.stringify(trades));
-
-            item.status = 'In Escrow';
-            listings[listingId] = item;
-            localStorage.setItem('realonaListings', JSON.stringify(listings));
-        }
-
-        if (buyerEmail !== sellerEmail) {
-            document.getElementById('buyerActionArea').style.display = 'block';
-        }
         function loadChat() {
             let messages = JSON.parse(localStorage.getItem('realona_chat_' + tradeId) || '[]');
             let chatBox = document.getElementById('chatMessages');
             
             let html = `<div class="chat-msg system">🔒 Escrow secure. Funds locked for ${item.title}.</div>`;
-            if (currentUser.email.toLowerCase() === sellerEmail) {
-                html += `<div class="chat-msg system">🔑 Credentials to deliver: ${item.credentials || 'Provided in chat'}</div>`;
-            }
 
             html += messages.map(m => {
                 let isMe = m.sender === currentUser.email;
@@ -142,13 +84,12 @@
             input.value = '';
             loadChat();
         }
-
         function releaseFunds() {
             if (confirm('Release funds to seller? This completes the trade.')) {
+                let itemPriceNum = parseFloat(item.price.replace(/[^0-9.-]+/g, '')) || 0;
+                
                 let sellerWalletKey = 'realona_wallet_' + sellerEmail;
                 let sellerBal = parseFloat(localStorage.getItem(sellerWalletKey) || '0');
-                let itemPriceNum = parseFloat(item.price.replace(/[^0-9.-]+/g, '')) || 0;
-
                 localStorage.setItem(sellerWalletKey, (sellerBal + itemPriceNum).toString());
 
                 let trades = JSON.parse(localStorage.getItem('realona_trades') || '[]');
@@ -160,7 +101,7 @@
                 listings[listingId] = item;
                 localStorage.setItem('realonaListings', JSON.stringify(listings));
 
-                alert('✅ Escrow completed! Funds released to seller.');
+                alert(`✅ Escrow completed! Released ₦${itemPriceNum.toLocaleString()} to seller (${sellerEmail}).`);
                 window.location.href = 'dashboard.html';
             }
         }
