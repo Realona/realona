@@ -1,149 +1,42 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Escrow Checkout - Realona</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        .checkout-card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 20px; margin-bottom: 15px; }
-        .chat-box { background: #0d1117; border: 1px solid #30363d; border-radius: 10px; padding: 12px; height: 220px; overflow-y: auto; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; }
-        .chat-msg { background: #21262d; border: 1px solid #30363d; color: #c9d1d9; padding: 8px 12px; border-radius: 8px; max-width: 80%; font-size: 13px; }
-        .chat-msg.buyer { align-self: flex-end; background: #1f6feb22; border-color: #1f6feb; color: #58a6ff; }
-        .chat-msg.system { align-self: center; background: #23863622; border-color: #238636; color: #3fb950; text-align: center; font-size: 11px; max-width: 95%; }
-        .chat-input-row { display: flex; gap: 8px; }
-        .chat-input { flex: 1; padding: 10px; background: #0d1117; border: 1px solid #30363d; color: #c9d1d9; border-radius: 6px; }
-        .btn-send { background: #238636; color: #fff; border: none; padding: 0 16px; border-radius: 6px; font-weight: bold; cursor: pointer; }
-        .btn-dispute { background: #da3633; color: #fff; border: none; width: 100%; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-    </style>
-</head>
-<body>
-    <nav>
-        <a href="index.html">Home</a>
-        <a href="sell.html">Sell Account</a>
-        <a href="dashboard.html">Dashboard</a>
-        <a href="wallet.html">Wallet</a>
-        <a href="about.html">About</a>
-    </nav>
-    <div class="sell-container">
-        <h2>🔒 Escrow Checkout & Active Trade</h2>
-
-        <div class="checkout-card">
-            <h3 id="itemTitle">Loading...</h3>
-            <p id="itemDetails" style="color:#8b949e; font-size:13px; margin:4px 0 10px 0;"></p>
-            <div style="font-size:22px; font-weight:bold; color:#58a6ff; margin-bottom:12px;" id="itemPrice">₦0</div>
-            
-            <button id="payBtn" onclick="processPayment()" class="btn-escrow" style="width:100%; padding:12px; background:#238636; border:none; color:#fff; font-weight:bold; border-radius:6px; cursor:pointer;">Pay & Hold Funds in Escrow</button>
-        </div>
-
-        <!-- Chat / Dispute System -->
-        <div class="checkout-card">
-            <h3 style="margin-bottom:10px; font-size:15px;">💬 Trade Chat & Escalation</h3>
-            <div id="chatMessages" class="chat-box">
-                <div class="chat-msg system">Escrow chat initialized. Pay into escrow to start trading credentials safely.</div>
-            </div>
-            
-            <div class="chat-input-row">
-                <input type="text" id="msgText" class="chat-input" placeholder="Type a message to buyer/seller...">
-                <button onclick="sendMessage()" class="btn-send">Send</button>
-            </div>
-
-            <button onclick="raiseDispute()" class="btn-dispute">🚩 Raise Trade Dispute</button>
-        </div>
-    </div>
     <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const id = urlParams.get('id') || 0;
-
-        let list = JSON.parse(localStorage.getItem('realonaListings') || '[]');
-        let item = list[id];
-
-        if (item) {
-            document.getElementById('itemTitle').innerText = item.title;
-            document.getElementById('itemDetails').innerText = item.details;
-            document.getElementById('itemPrice').innerText = item.price;
-        }
-
-        function processPayment() {
-            let balance = Number(localStorage.getItem('realonaWalletBalance') || '0');
-            let itemPriceNum = Number((item ? item.price : '0').replace(/[^0-9]/g, '')) || 0;
-
-            if (balance < itemPriceNum) {
-                alert('Insufficient wallet balance! Please top up your wallet first.');
-                window.location.href = 'wallet.html';
+        function initCheckout() {
+            // Rule 1: Require login for checkout
+            let currentUser = JSON.parse(localStorage.getItem('realonaCurrentUser') || 'null');
+            if (!currentUser || !currentUser.email) {
+                alert('You must sign in or register before making a purchase.');
+                window.location.href = 'auth.html';
                 return;
             }
 
-            // Deduct balance and update item status
-            localStorage.setItem('realonaWalletBalance', balance - itemPriceNum);
-            if (item) {
-                item.status = 'In Escrow';
-                list[id] = item;
-                localStorage.setItem('realonaListings', JSON.stringify(list));
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get('id');
+            let listings = JSON.parse(localStorage.getItem('realonaListings') || '[]');
+            let item = listings[id];
+
+            if (!item) {
+                alert('Listing not found!');
+                window.location.href = 'index.html';
+                return;
             }
 
-            document.getElementById('payBtn').innerText = '✅ Funds Secured in Escrow';
-            document.getElementById('payBtn').disabled = true;
-            document.getElementById('payBtn').style.background = '#30363d';
-
-            appendSystemMsg('Funds held safely in Escrow! Credentials released: Check your account dashboard or verify details with seller below.');
-        }
-
-        function sendMessage() {
-            let input = document.getElementById('msgText');
-            let txt = input.value.trim();
-            if (!txt) return;
-
-            let chatBox = document.getElementById('chatMessages');
-            let msgDiv = document.createElement('div');
-            msgDiv.className = 'chat-msg buyer';
-            msgDiv.innerHTML = `<strong>You:</strong> ${txt}`;
-            chatBox.appendChild(msgDiv);
-            chatBox.scrollTop = chatBox.scrollHeight;
-
-            input.value = '';
-        }
-
-        function appendSystemMsg(msg) {
-            let chatBox = document.getElementById('chatMessages');
-            let msgDiv = document.createElement('div');
-            msgDiv.className = 'chat-msg system';
-            msgDiv.innerText = msg;
-            chatBox.appendChild(msgDiv);
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
-
-        function raiseDispute() {
-            if (confirm('Are you sure you want to escalate this trade to Realona Support?')) {
-                if (item) {
-                    item.status = 'Disputed';
-                    list[id] = item;
-                    localStorage.setItem('realonaListings', JSON.stringify(list));
-                }
-                appendSystemMsg('⚠️ Dispute Raised! A Realona Support admin has been notified and joined this room.');
+            // Rule 2: Prevent buying your own listing
+            if (item.sellerEmail === currentUser.email) {
+                alert('Security Error: You cannot purchase your own account listing!');
+                window.location.href = 'index.html';
+                return;
             }
+
+            document.getElementById('buyTitle').innerText = item.title;
+            document.getElementById('buyInfo').innerText = item.details;
+            document.getElementById('buyPrice').innerText = item.price;
         }
+
+        function confirmEscrowPurchase() {
+            alert('🔒 Funds secured in Realona Escrow! Seller credentials have been unlocked in your dashboard.');
+            window.location.href = 'dashboard.html';
+        }
+
+        initCheckout();
     </script>
 </body>
 </html>
-<script>
-    // Hook email notification to checkout
-    const originalProcessPayment = processPayment;
-    processPayment = async function() {
-        originalProcessPayment();
-
-        try {
-            await fetch('http://localhost:5000/api/notify-escrow', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    itemTitle: item ? item.title : 'Account Purchase',
-                    price: item ? item.price : '₦0'
-                })
-            });
-            appendSystemMsg('📧 Email notification dispatched to buyer and seller!');
-        } catch(e) {
-            console.log('Escrow notification failed:', e);
-        }
-    };
-</script>
