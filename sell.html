@@ -113,7 +113,7 @@
             if (!price.includes('₦')) price = '₦' + price;
             let detailsString = `${rating} OVR • ${division}` + (playerTags.length ? ` • Top Players: ${playerTags.join(', ')}` : '');
 
-            function performSave(imgData) {
+            function saveListingFinal(imgBase64) {
                 try {
                     let newListing = {
                         title: 'eFootball Pro Account',
@@ -123,7 +123,7 @@
                         category: 'eFootball',
                         sellerEmail: currentUser.email,
                         sellerName: currentUser.username || 'Seller',
-                        image: imgData || '',
+                        image: imgBase64 || '',
                         credentials: { email, pass }
                     };
 
@@ -134,7 +134,8 @@
                     alert('✅ Account listed successfully!');
                     window.location.href = 'index.html';
                 } catch (err) {
-                    alert('Error saving listing: ' + err.message);
+                    alert('Storage limit error. Publishing without image.');
+                    saveListingFinal('');
                 }
             }
 
@@ -145,27 +146,21 @@
                     img.onload = function() {
                         let canvas = document.createElement('canvas');
                         let ctx = canvas.getContext('2d');
-                        let maxDim = 800;
+                        let maxDim = 700;
                         let w = img.width;
                         let h = img.height;
-
-                        if (w > h) {
-                            if (w > maxDim) { h *= maxDim / w; w = maxDim; }
-                        } else {
-                            if (h > maxDim) { w *= maxDim / h; h = maxDim; }
-                        }
-
+                        if (w > h) { if (w > maxDim) { h *= maxDim / w; w = maxDim; } }
+                        else { if (h > maxDim) { w *= maxDim / h; h = maxDim; } }
                         canvas.width = w;
                         canvas.height = h;
                         ctx.drawImage(img, 0, 0, w, h);
-                        let compressedData = canvas.toDataURL('image/jpeg', 0.6);
-                        performSave(compressedData);
+                        saveListingFinal(canvas.toDataURL('image/jpeg', 0.5));
                     };
                     img.src = evt.target.result;
                 };
                 reader.readAsDataURL(fileInput.files[0]);
             } else {
-                performSave('');
+                saveListingFinal('');
             }
         });
     </script>
