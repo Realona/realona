@@ -3,143 +3,89 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Dashboard - Realona Exchange</title>
+    <title>Dashboard - Realona</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        .welcome-box { margin-bottom: 20px; }
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-        .stat-card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; justify-content: space-between; }
-        .stat-card h4 { font-size: 13px; color: #8b949e; margin: 0 0 8px 0; font-weight: normal; }
-        .stat-card .val { font-size: 22px; font-weight: bold; color: #c9d1d9; margin-bottom: 12px; }
-        .stat-card .btn-link { background: #21262d; border: 1px solid #30363d; color: #58a6ff; padding: 6px 10px; border-radius: 6px; font-size: 12px; text-align: center; text-decoration: none; display: block; }
-        
-        .section-box { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 15px; margin-bottom: 20px; }
-        .section-box h3 { font-size: 15px; color: #c9d1d9; margin-bottom: 12px; }
-        
-        .actions-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-        .action-btn { background: #21262d; border: 1px solid #30363d; color: #c9d1d9; padding: 10px 6px; border-radius: 8px; font-size: 11px; text-align: center; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-        .action-btn.primary { background: #238636; color: #fff; border-color: #238636; }
-
-        .dash-item { background: #0d1117; border: 1px solid #30363d; padding: 12px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-        .btn-sm { background: #21262d; border: 1px solid #30363d; color: #c9d1d9; padding: 5px 8px; border-radius: 5px; font-size: 11px; cursor: pointer; text-decoration: none; }
-        .btn-del { background: #da3633; color: #fff; border: none; }
-        .badge-act { background: #238636; color: #fff; padding: 2px 6px; border-radius: 10px; font-size: 10px; }
-    </style>
 </head>
 <body>
     <nav>
         <a href="index.html">Home</a>
-        <a href="sell.html">Sell</a>
+        <a href="sell.html">Sell Account</a>
         <a href="dashboard.html" style="color:#58a6ff;">Dashboard</a>
         <a href="wallet.html">Wallet</a>
-        <a href="about.html">About</a>
+        <a href="auth.html">Account</a>
     </nav>
     <div class="sell-container">
-        <div class="welcome-box">
-            <h2 style="font-size: 22px; margin-bottom: 4px;">Welcome back, Kolade! 👋</h2>
-            <p style="color: #8b949e; font-size: 13px;">Manage your trades, listings, and wallet from here.</p>
-        </div>
+        <h2 id="dashWelcome" style="margin-bottom:5px; color:#c9d1d9;">Welcome back! 👋</h2>
+        <p style="color:#8b949e; font-size:13px; margin-bottom:20px;">Manage your trades, listings, and wallet from here.</p>
 
-        <div class="stats-grid">
-            <div class="stat-card">
-                <h4>Wallet Balance</h4>
-                <div class="val" id="walletBal">₦0</div>
-                <a href="wallet.html" class="btn-link">Manage Wallet</a>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:20px;">
+            <div style="background:#161b22; border:1px solid #30363d; padding:15px; border-radius:10px;">
+                <span style="font-size:12px; color:#8b949e;">Wallet Balance</span>
+                <div id="dashWallet" style="font-size:22px; font-weight:bold; color:#58a6ff; margin-top:5px;">₦0</div>
             </div>
-            <div class="stat-card">
-                <h4>Active Listings</h4>
-                <div class="val" id="activeListingsCount">0</div>
-                <a href="#myListingsSection" class="btn-link">View Listings</a>
-            </div>
-            <div class="stat-card">
-                <h4>Active Trades</h4>
-                <div class="val" id="activeTradesCount">0</div>
-                <a href="#recentTradesSection" class="btn-link">View Trades</a>
-            </div>
-            <div class="stat-card">
-                <h4>Completed Trades</h4>
-                <div class="val" id="completedTradesCount">0</div>
-                <span style="font-size: 11px; color: #8b949e; text-align: center; padding-top: 6px;">All time</span>
+            <div style="background:#161b22; border:1px solid #30363d; padding:15px; border-radius:10px;">
+                <span style="font-size:12px; color:#8b949e;">Your Active Listings</span>
+                <div id="dashActiveCount" style="font-size:22px; font-weight:bold; color:#3fb950; margin-top:5px;">0</div>
             </div>
         </div>
 
-        <!-- Managed Listings Section -->
-        <div id="myListingsSection" class="section-box">
-            <h3>📦 Your Active Listings</h3>
+        <div style="background:#161b22; border:1px solid #30363d; border-radius:12px; padding:20px; margin-bottom:20px;">
+            <h3 style="margin-top:0; color:#c9d1d9;">📦 Your Active Listings</h3>
             <div id="myListingsContainer"></div>
         </div>
-        <!-- Quick Actions -->
-        <div class="section-box">
-            <h3>Quick Actions</h3>
-            <div class="actions-grid">
-                <a href="sell.html" class="action-btn primary">➕ New Listing</a>
-                <a href="index.html" class="action-btn">🛒 Marketplace</a>
-                <a href="wallet.html" class="action-btn">💰 Deposit / Withdraw</a>
-                <a href="dashboard.html" class="action-btn">🏷️ My Offers</a>
-                <a href="about.html" class="action-btn">🏆 Leaderboard</a>
-                <a href="dashboard.html" class="action-btn">📜 Purchase History</a>
-            </div>
-        </div>
 
-        <!-- Recent Trades -->
-        <div id="recentTradesSection" class="section-box">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                <h3 style="margin:0;">Recent Trades</h3>
-                <a href="index.html" style="font-size:12px; color:#58a6ff; text-decoration:none;">View all →</a>
-            </div>
-            <div id="tradesContainer" style="text-align:center; padding: 10px 0;">
-                <p style="font-size: 13px; color: #8b949e; margin-bottom: 6px;">No active trades yet</p>
-                <a href="index.html" style="font-size: 12px; color: #58a6ff; text-decoration:none;">Browse listings to start trading</a>
+        <div style="background:#161b22; border:1px solid #30363d; border-radius:12px; padding:20px;">
+            <h3 style="margin-top:0; color:#c9d1d9;">Quick Actions</h3>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <a href="sell.html" style="background:#238636; color:#fff; padding:10px 15px; border-radius:6px; text-decoration:none; font-weight:bold; font-size:13px;">+ New Listing</a>
+                <a href="index.html" style="background:#21262d; border:1px solid #30363d; color:#58a6ff; padding:10px 15px; border-radius:6px; text-decoration:none; font-size:13px;">🔍 Marketplace</a>
             </div>
         </div>
     </div>
-
     <script>
         function loadDashboard() {
-            let balance = localStorage.getItem('realonaWalletBalance') || '0';
-            document.getElementById('walletBal').innerText = '₦' + Number(balance).toLocaleString();
+            let currentUser = JSON.parse(localStorage.getItem('realonaCurrentUser') || 'null');
+            if (!currentUser || !currentUser.email) {
+                alert('Please sign in to view your dashboard.');
+                window.location.href = 'auth.html';
+                return;
+            }
+
+            document.getElementById('dashWelcome').innerText = `Welcome back, ${currentUser.username || 'Trader'}! 👋`;
+
+            let wallet = localStorage.getItem('realona_wallet_' + currentUser.email) || '₦0';
+            document.getElementById('dashWallet').innerText = wallet;
 
             let listings = JSON.parse(localStorage.getItem('realonaListings') || '[]');
-            let activeListings = listings.filter(item => (!item.status || item.status === 'Active'));
-            let soldListings = listings.filter(item => item.status === 'Sold');
-            let escrowListings = listings.filter(item => item.status === 'In Escrow');
+            // Filter strictly by logged-in user email
+            let myListings = listings.map((item, idx) => ({ ...item, globalIndex: idx })).filter(item => item.sellerEmail === currentUser.email);
 
-            document.getElementById('activeListingsCount').innerText = activeListings.length;
-            document.getElementById('activeTradesCount').innerText = escrowListings.length;
-            document.getElementById('completedTradesCount').innerText = soldListings.length;
+            document.getElementById('dashActiveCount').innerText = myListings.length;
 
-            let listingsContainer = document.getElementById('myListingsContainer');
-            if (listings.length === 0) {
-                listingsContainer.innerHTML = `<p style="font-size:13px; color:#8b949e; text-align:center;">No accounts listed yet. <a href="sell.html" style="color:#58a6ff;">+ Add One</a></p>`;
+            let container = document.getElementById('myListingsContainer');
+            if (myListings.length === 0) {
+                container.innerHTML = `<p style="color:#8b949e; font-size:13px; text-align:center; padding:15px;">You have no active listings yet. Click "+ New Listing" above!</p>`;
             } else {
-                listingsContainer.innerHTML = listings.map((item, index) => `
-                    <div class="dash-item">
+                container.innerHTML = myListings.map(item => `
+                    <div style="background:#0d1117; border:1px solid #30363d; padding:12px; border-radius:8px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
                         <div>
-                            <strong style="font-size:13px; color:#c9d1d9;">${item.title}</strong>
-                            <div style="font-size:11px; color:#8b949e; margin-top:2px;">${item.price} • <span class="badge-act">${item.status || 'Active'}</span></div>
+                            <strong style="color:#c9d1d9; font-size:14px;">${item.title}</strong>
+                            <div style="color:#8b949e; font-size:12px;">${item.details} • <span style="color:#58a6ff; font-weight:bold;">${item.price}</span></div>
                         </div>
                         <div style="display:flex; gap:6px;">
-                            <a href="listing.html?id=${index}" class="btn-sm" style="color:#58a6ff;">View</a>
-                            <button onclick="toggleStatus(${index})" class="btn-sm">${item.status === 'Sold' ? 'Mark Active' : 'Mark Sold'}</button>
-                            <button onclick="deleteListing(${index})" class="btn-sm btn-del">Delete</button>
+                            <a href="listing.html?id=${item.globalIndex}" style="background:#21262d; border:1px solid #30363d; color:#58a6ff; padding:6px 10px; border-radius:6px; font-size:11px; text-decoration:none;">View</a>
+                            <button onclick="deleteListing(${item.globalIndex})" style="background:#da3633; color:#fff; border:none; padding:6px 10px; border-radius:6px; font-size:11px; cursor:pointer;">Delete</button>
                         </div>
                     </div>
                 `).join('');
             }
         }
 
-        function toggleStatus(index) {
-            let list = JSON.parse(localStorage.getItem('realonaListings') || '[]');
-            list[index].status = list[index].status === 'Sold' ? 'Active' : 'Sold';
-            localStorage.setItem('realonaListings', JSON.stringify(list));
-            loadDashboard();
-        }
-
-        function deleteListing(index) {
+        function deleteListing(globalIndex) {
             if (confirm('Are you sure you want to delete this listing?')) {
-                let list = JSON.parse(localStorage.getItem('realonaListings') || '[]');
-                list.splice(index, 1);
-                localStorage.setItem('realonaListings', JSON.stringify(list));
+                let listings = JSON.parse(localStorage.getItem('realonaListings') || '[]');
+                listings.splice(globalIndex, 1);
+                localStorage.setItem('realonaListings', JSON.stringify(listings));
                 loadDashboard();
             }
         }
@@ -148,11 +94,3 @@
     </script>
 </body>
 </html>
-<script>
-    // Update welcome name dynamically from registered user
-    let user = JSON.parse(localStorage.getItem('realonaCurrentUser') || '{}');
-    if (user.username) {
-        let welcomeHeading = document.querySelector('.welcome-box h2');
-        if (welcomeHeading) welcomeHeading.innerText = 'Welcome back, ' + user.username + '! 👋';
-    }
-</script>

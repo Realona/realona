@@ -1,42 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Escrow Chat & Checkout - Realona</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .chat-container { max-width: 600px; margin: 20px auto; background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 20px; text-align: left; }
+        .chat-box { height: 300px; background: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 15px; overflow-y: auto; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .chat-msg { padding: 10px 14px; border-radius: 8px; font-size: 13px; max-width: 80%; line-height: 1.4; }
+        .msg-system { background: #21262d; color: #8b949e; align-self: center; text-align: center; width: 100%; border: 1px dashed #30363d; }
+        .msg-buyer { background: #1f6feb; color: #fff; align-self: flex-end; }
+        .msg-seller { background: #238636; color: #fff; align-self: flex-start; }
+        .chat-input-area { display: flex; gap: 8px; }
+        .chat-input-area input { flex: 1; padding: 10px; background: #0d1117; border: 1px solid #30363d; color: #c9d1d9; border-radius: 6px; }
+        .btn-send { background: #238636; color: #fff; border: none; padding: 10px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .escrow-panel { background: #0d1117; border: 1px solid #30363d; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        .btn-pay { display: block; width: 100%; text-align: center; padding: 12px; background: #1f6feb; color: #fff; font-weight: bold; border-radius: 6px; border: none; cursor: pointer; margin-top: 10px; }
+        .credentials-box { background: #1a7f3722; border: 1px solid #238636; padding: 15px; border-radius: 8px; margin-top: 15px; color: #3fb950; font-size: 14px; }
+        .back-link { color: #58a6ff; text-decoration: none; font-size: 13px; display: inline-block; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="sell.html">Sell Account</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="wallet.html">Wallet</a>
+        <a href="auth.html">Account</a>
+    </nav>
+    <div class="sell-container">
+        <a href="index.html" class="back-link">← Back to Marketplace</a>
+
+        <div class="chat-container">
+            <h2 id="chatTitle" style="margin:0 0 5px 0; color:#c9d1d9;">Escrow Negotiation Room</h2>
+            <p id="chatSub" style="color:#8b949e; font-size:13px; margin-bottom:15px;">Chat with the seller and secure funds in escrow.</p>
+
+            <div class="escrow-panel">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <strong id="itemTitleDisplay" style="color:#c9d1d9;">-</strong>
+                        <div id="itemPriceDisplay" style="color:#58a6ff; font-weight:bold; font-size:16px;">-</div>
+                    </div>
+                    <div id="escrowStatusBadge" style="background:#21262d; border:1px solid #30363d; color:#e3b341; padding:6px 12px; border-radius:6px; font-size:12px; font-weight:bold;">
+                        ⏳ Escrow Pending
+                    </div>
+                </div>
+                <div id="escrowActionArea">
+                    <button onclick="fundEscrow()" class="btn-pay">🔒 Fund Escrow (Lock Payment)</button>
+                </div>
+            </div>
+
+            <div id="chatMessages" class="chat-box"></div>
+
+            <div class="chat-input-area">
+                <input type="text" id="msgInput" placeholder="Type a message to the seller..." onkeypress="if(event.key==='Enter') sendChatMessage()">
+                <button onclick="sendChatMessage()" class="btn-send">Send</button>
+            </div>
+
+            <div id="credentialsArea" style="display:none;"></div>
+        </div>
+    </div>
     <script>
-        function initCheckout() {
-            // Rule 1: Require login for checkout
-            let currentUser = JSON.parse(localStorage.getItem('realonaCurrentUser') || 'null');
-            if (!currentUser || !currentUser.email) {
-                alert('You must sign in or register before making a purchase.');
-                window.location.href = 'auth.html';
-                return;
-            }
-
-            const urlParams = new URLSearchParams(window.location.search);
-            const id = urlParams.get('id');
-            let listings = JSON.parse(localStorage.getItem('realonaListings') || '[]');
-            let item = listings[id];
-
-            if (!item) {
-                alert('Listing not found!');
-                window.location.href = 'index.html';
-                return;
-            }
-
-            // Rule 2: Prevent buying your own listing
-            if (item.sellerEmail === currentUser.email) {
-                alert('Security Error: You cannot purchase your own account listing!');
-                window.location.href = 'index.html';
-                return;
-            }
-
-            document.getElementById('buyTitle').innerText = item.title;
-            document.getElementById('buyInfo').innerText = item.details;
-            document.getElementById('buyPrice').innerText = item.price;
+        let currentUser = JSON.parse(localStorage.getItem('realonaCurrentUser') || 'null');
+        if (!currentUser || !currentUser.email) {
+            alert('Please sign in to access escrow chat.');
+            window.location.href = 'auth.html';
         }
 
-        function confirmEscrowPurchase() {
-            alert('🔒 Funds secured in Realona Escrow! Seller credentials have been unlocked in your dashboard.');
-            window.location.href = 'dashboard.html';
+        const urlParams = new URLSearchParams(window.location.search);
+        const listingId = urlParams.get('id') || 0;
+        let listings = JSON.parse(localStorage.getItem('realonaListings') || '[]');
+        let item = listings[listingId];
+
+        if (!item) {
+            alert('Listing not found!');
+            window.location.href = 'index.html';
         }
 
-        initCheckout();
+        if (item.sellerEmail === currentUser.email) {
+            alert('You cannot buy your own listing!');
+            window.location.href = 'index.html';
+        }
+
+        // Initialize chat history key in localStorage
+        let chatKey = `realona_chat_${listingId}_${currentUser.email}`;
+        let messages = JSON.parse(localStorage.getItem(chatKey) || '[]');
+        let escrowFunded = JSON.parse(localStorage.getItem(`escrow_funded_${listingId}_${currentUser.email}`) || 'false');
+
+        document.getElementById('itemTitleDisplay').innerText = item.title + ' (' + item.details + ')';
+        document.getElementById('itemPriceDisplay').innerText = item.price;
+
+        if (messages.length === 0) {
+            messages.push({ sender: 'System', text: `🛡️ Escrow room opened. Funds are protected by Realona. Chat with ${item.sellerName || 'Seller'} below.` });
+            localStorage.setItem(chatKey, JSON.stringify(messages));
+        }
+
+        if (escrowFunded) {
+            renderFundedState();
+        }
+
+        renderMessages();
+
+        function renderMessages() {
+            let box = document.getElementById('chatMessages');
+            box.innerHTML = messages.map(m => {
+                if (m.sender === 'System') return `<div class="chat-msg msg-system">${m.text}</div>`;
+                let isMe = m.senderEmail === currentUser.email;
+                return `<div class="chat-msg ${isMe ? 'msg-buyer' : 'msg-seller'}"><strong>${m.sender}:</strong> ${m.text}</div>`;
+            }).join('');
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function sendChatMessage() {
+            let input = document.getElementById('msgInput');
+            let text = input.value.trim();
+            if (!text) return;
+
+            messages.push({
+                sender: currentUser.username || 'Buyer',
+                senderEmail: currentUser.email,
+                text: text
+            });
+
+            localStorage.setItem(chatKey, JSON.stringify(messages));
+            input.value = '';
+            renderMessages();
+        }
+
+        function fundEscrow() {
+            if (confirm('Fund escrow with ' + item.price + '? Funds will be held securely until you confirm account verification.')) {
+                escrowFunded = true;
+                localStorage.setItem(`escrow_funded_${listingId}_${currentUser.email}`, 'true');
+                messages.push({ sender: 'System', text: `🔒 SUCCESS: Escrow funded with ${item.price}. Payment locked securely.` });
+                
+                if (item.credentials && item.credentials.email) {
+                    messages.push({ sender: 'System', text: `🔑 CREDENTIALS UNLOCKED:\nEmail/ID: ${item.credentials.email}\nPassword: ${item.credentials.pass}` });
+                } else {
+                    messages.push({ sender: 'System', text: `🔑 CREDENTIALS UNLOCKED:\nEmail: seller_demo@realona.com\nPassword: securepass123` });
+                }
+
+                localStorage.setItem(chatKey, JSON.stringify(messages));
+                renderFundedState();
+                renderMessages();
+            }
+        }
+
+        function renderFundedState() {
+            document.getElementById('escrowStatusBadge').innerText = '✅ Escrow Funded & Secured';
+            document.getElementById('escrowStatusBadge').style.background = '#238636';
+            document.getElementById('escrowStatusBadge').style.color = '#fff';
+            document.getElementById('escrowActionArea').innerHTML = `<p style="color:#3fb950; font-size:13px; margin:8px 0 0 0;">✓ Payment locked in escrow. Check chat for account credentials.</p>`;
+            
+            let creds = item.credentials || { email: 'seller_demo@realona.com', pass: 'securepass123' };
+            document.getElementById('credentialsArea').style.display = 'block';
+            document.getElementById('credentialsArea').innerHTML = `
+                <div class="credentials-box">
+                    <strong>🎉 Escrow Verified - Account Credentials:</strong><br>
+                    📧 Email/ID: <code>${creds.email}</code><br>
+                    🔑 Password: <code>${creds.pass}</code>
+                </div>
+            `;
+        }
     </script>
 </body>
 </html>
