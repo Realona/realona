@@ -15,7 +15,6 @@
         .form-group label { display: block; font-size: 13px; color: #8b949e; margin-bottom: 5px; }
         .form-group input, .form-group select { width: 100%; padding: 10px; background: #0d1117; border: 1px solid #30363d; color: #c9d1d9; border-radius: 6px; box-sizing: border-box; }
         .btn-admin { background: #238636; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px; }
-        .btn-danger { background: #da3633; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px; }
         .table-custom { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
         .table-custom th, .table-custom td { border: 1px solid #30363d; padding: 8px; text-align: left; color: #c9d1d9; }
         .table-custom th { background: #0d1117; }
@@ -92,6 +91,13 @@
             event.target.classList.add('active');
         }
 
+        function getSafeBalance(email) {
+            let val = localStorage.getItem('realona_wallet_' + email);
+            if (!val) return 0;
+            let parsed = parseFloat(val.toString().replace(/[^0-9.-]+/g, ''));
+            return isNaN(parsed) ? 0 : parsed;
+        }
+
         function loadDeposits() {
             let deposits = JSON.parse(localStorage.getItem('realona_pending_deposits') || '[]');
             let tbody = document.getElementById('depositsTableBody');
@@ -117,19 +123,16 @@
         function approveDeposit(idx) {
             let deposits = JSON.parse(localStorage.getItem('realona_pending_deposits') || '[]');
             let item = deposits[idx];
+            let targetEmail = item.email.toLowerCase().trim();
 
-            // 1. Fetch target user's current wallet
-            let currentBal = parseFloat(localStorage.getItem('realona_wallet_' + item.email) || '0');
+            let currentBal = getSafeBalance(targetEmail);
             let newBal = currentBal + parseFloat(item.amount);
             
-            // 2. Update target user wallet balance
-            localStorage.setItem('realona_wallet_' + item.email, newBal.toString());
-            
-            // 3. Mark transaction as Approved
+            localStorage.setItem('realona_wallet_' + targetEmail, newBal.toString());
             deposits[idx].status = 'Approved';
             localStorage.setItem('realona_pending_deposits', JSON.stringify(deposits));
 
-            alert(`✅ Approved! Credited ₦${item.amount.toLocaleString()} to ${item.email}. New balance: ₦${newBal.toLocaleString()}`);
+            alert(`✅ Approved! Credited ₦${item.amount.toLocaleString()} to ${targetEmail}. New balance: ₦${newBal.toLocaleString()}`);
             loadDeposits();
         }
 
@@ -139,7 +142,7 @@
             let type = document.getElementById('adjType').value;
             let amount = parseFloat(document.getElementById('adjAmount').value);
 
-            let currentBal = parseFloat(localStorage.getItem('realona_wallet_' + email) || '0');
+            let currentBal = getSafeBalance(email);
             let newBal = type === 'add' ? currentBal + amount : Math.max(0, currentBal - amount);
 
             localStorage.setItem('realona_wallet_' + email, newBal.toString());

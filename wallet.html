@@ -33,8 +33,6 @@
 
         <div class="wallet-card">
             <h3 style="margin-top:0; color:#c9d1d9; font-size:16px;">🏦 Manual Moniepoint Deposit</h3>
-            <p style="color:#8b949e; font-size:12px;">Transfer funds to the official platform escrow account below to fund your wallet:</p>
-            
             <div class="bank-box">
                 <div><strong>Bank:</strong> Moniepoint MFB</div>
                 <div><strong>Account Number:</strong> 9160385331</div>
@@ -66,12 +64,20 @@
             window.location.href = 'auth.html';
         }
 
+        function getSafeBalance(email) {
+            let val = localStorage.getItem('realona_wallet_' + email);
+            if (!val) return 0;
+            let parsed = parseFloat(val.toString().replace(/[^0-9.-]+/g, ''));
+            return isNaN(parsed) ? 0 : parsed;
+        }
+
         function loadWallet() {
-            let bal = parseFloat(localStorage.getItem('realona_wallet_' + currentUser.email) || '0');
+            let userEmail = currentUser.email.toLowerCase().trim();
+            let bal = getSafeBalance(userEmail);
             document.getElementById('userWalletBal').innerText = '₦' + bal.toLocaleString();
 
             let allDeposits = JSON.parse(localStorage.getItem('realona_pending_deposits') || '[]');
-            let userDeposits = allDeposits.filter(d => d.email === currentUser.email);
+            let userDeposits = allDeposits.filter(d => d.email && d.email.toLowerCase().trim() === userEmail);
 
             let container = document.getElementById('txHistoryContainer');
             if (userDeposits.length === 0) {
@@ -95,21 +101,20 @@
             e.preventDefault();
             let amount = parseFloat(document.getElementById('depAmount').value);
             let senderName = document.getElementById('depSender').value.trim();
+            let userEmail = currentUser.email.toLowerCase().trim();
 
             let allDeposits = JSON.parse(localStorage.getItem('realona_pending_deposits') || '[]');
-            let newDep = {
+            allDeposits.push({
                 id: 'DEP-' + Date.now(),
-                email: currentUser.email,
-                username: currentUser.username,
+                email: userEmail,
+                username: currentUser.username || 'Trader',
                 senderName: senderName,
                 amount: amount,
                 status: 'Pending',
                 date: new Date().toLocaleDateString()
-            };
+            });
 
-            allDeposits.push(newDep);
             localStorage.setItem('realona_pending_deposits', JSON.stringify(allDeposits));
-
             alert('Deposit request submitted! Admin will verify and credit your wallet shortly.');
             document.getElementById('depAmount').value = '';
             document.getElementById('depSender').value = '';
