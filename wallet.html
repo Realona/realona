@@ -6,106 +6,117 @@
     <title>Wallet - Realona</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        .wallet-card { background: #161b22; border: 1px solid #30363d; padding: 20px; border-radius: 12px; margin-bottom: 20px; }
-        .balance-amount { font-size: 28px; font-weight: bold; color: #58a6ff; margin: 10px 0; }
-        .bank-info { background: #21262d; padding: 12px; border-radius: 8px; font-size: 14px; margin-top: 10px; border-left: 4px solid #238636; }
-        .copy-btn { background: #30363d; color: #58a6ff; border: none; padding: 3px 8px; border-radius: 4px; font-size: 12px; cursor: pointer; margin-left: 8px; }
+        .wallet-card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 20px; margin-bottom: 20px; text-align: left; }
+        .bal-title { font-size: 28px; font-weight: bold; color: #58a6ff; margin-bottom: 5px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 13px; color: #8b949e; margin-bottom: 5px; }
+        .form-group input { width: 100%; padding: 10px; background: #0d1117; border: 1px solid #30363d; color: #c9d1d9; border-radius: 6px; box-sizing: border-box; }
+        .btn-confirm { width: 100%; padding: 12px; background: #1f6feb; color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .bank-box { background: #0d1117; border: 1px solid #238636; border-radius: 8px; padding: 12px; margin-bottom: 15px; font-size: 13px; color: #c9d1d9; }
+        .tx-item { display: flex; justify-content: space-between; align-items: center; background: #0d1117; border: 1px solid #30363d; padding: 10px; border-radius: 6px; margin-bottom: 8px; font-size: 12px; }
     </style>
 </head>
 <body>
     <nav>
         <a href="index.html">Home</a>
-        <a href="sell.html">Sell Account</a>
+        <a href="sell.html">Sell</a>
         <a href="dashboard.html">Dashboard</a>
-        <a href="wallet.html">Wallet</a>
-        <a href="about.html">About</a>
+        <a href="wallet.html" style="color:#58a6ff;">Wallet</a>
+        <a href="auth.html">Account</a>
     </nav>
-    <div class="sell-container">
-        <h2>Escrow Wallet & Funds</h2>
-        
+    <div class="sell-container" style="max-width:500px; margin:20px auto; padding:0 15px;">
         <div class="wallet-card">
-            <p style="color:#8b949e;">Available Escrow Balance</p>
-            <div class="balance-amount" id="walletBalance">₦0.00</div>
-            <p style="font-size: 13px; color: #8b949e;">Funds are held securely in escrow until trade completion and verification.</p>
+            <span style="font-size:12px; color:#8b949e;">Your Active Balance</span>
+            <div class="bal-title" id="userWalletBal">₦0</div>
+            <p style="color:#8b949e; font-size:11px; margin:0;">Funds are held securely in escrow during active transactions.</p>
         </div>
 
         <div class="wallet-card">
-            <h3>🏦 Manual Moniepoint Deposit</h3>
-            <p style="font-size: 14px; color: #c9d1d9; margin-top: 5px;">Transfer funds to the official platform escrow account below to fund your wallet:</p>
-            <div class="bank-info">
-                <strong>Bank:</strong> Moniepoint MFB<br>
-                <strong>Account Number:</strong> <span id="accNum">9160385331</span> 
-                <button type="button" class="copy-btn" onclick="copyAccount()">📋 Copy</button><br>
-                <strong>Account Name:</strong> Realona Escrow Services
+            <h3 style="margin-top:0; color:#c9d1d9; font-size:16px;">🏦 Manual Moniepoint Deposit</h3>
+            <p style="color:#8b949e; font-size:12px;">Transfer funds to the official platform escrow account below to fund your wallet:</p>
+            
+            <div class="bank-box">
+                <div><strong>Bank:</strong> Moniepoint MFB</div>
+                <div><strong>Account Number:</strong> 9160385331</div>
+                <div><strong>Account Name:</strong> Realona Escrow Services</div>
             </div>
 
-            <form onsubmit="submitDeposit(event)" style="margin-top: 15px;">
-                <input type="number" id="depositAmount" placeholder="Amount Sent (₦)" class="search-bar" required style="margin-bottom: 10px;">
-                <input type="text" id="senderUsername" placeholder="Sender Username / Account Name" class="search-bar" required style="margin-bottom: 10px;">
-                <button type="submit" class="btn-escrow" style="width:100%;">Confirm Deposit</button>
+            <form onsubmit="submitDeposit(event)">
+                <div class="form-group">
+                    <label>Amount Sent (₦)</label>
+                    <input type="number" id="depAmount" required placeholder="e.g. 5000">
+                </div>
+                <div class="form-group">
+                    <label>Sender Username / Account Name</label>
+                    <input type="text" id="depSender" required placeholder="Name on bank transfer">
+                </div>
+                <button type="submit" class="btn-confirm">Confirm Deposit</button>
             </form>
         </div>
+
         <div class="wallet-card">
-            <h3>📜 Transaction History</h3>
-            <div id="txList" style="margin-top: 10px; font-size: 14px; color: #8b949e;">
-                No recent transactions found.
-            </div>
+            <h3 style="margin-top:0; color:#c9d1d9; font-size:15px;">📜 Transaction History</h3>
+            <div id="txHistoryContainer"></div>
         </div>
     </div>
-
     <script>
-        let balance = Number(localStorage.getItem('realonaWalletBalance') || 0);
-        document.getElementById('walletBalance').innerText = '₦' + balance.toLocaleString();
+        let currentUser = JSON.parse(localStorage.getItem('realonaCurrentUser') || 'null');
+        if (!currentUser || !currentUser.email) {
+            alert('Please sign in to access your wallet.');
+            window.location.href = 'auth.html';
+        }
 
-        let txs = JSON.parse(localStorage.getItem('realonaTransactions') || '[]');
-        renderTransactions();
+        function loadWallet() {
+            let bal = parseFloat(localStorage.getItem('realona_wallet_' + currentUser.email) || '0');
+            document.getElementById('userWalletBal').innerText = '₦' + bal.toLocaleString();
 
-        function copyAccount() {
-            let num = document.getElementById('accNum').innerText;
-            navigator.clipboard.writeText(num).then(() => {
-                alert('Account number copied: ' + num);
-            }).catch(() => {
-                alert('Copied: ' + num);
-            });
+            let allDeposits = JSON.parse(localStorage.getItem('realona_pending_deposits') || '[]');
+            let userDeposits = allDeposits.filter(d => d.email === currentUser.email);
+
+            let container = document.getElementById('txHistoryContainer');
+            if (userDeposits.length === 0) {
+                container.innerHTML = `<p style="color:#8b949e; font-size:12px; text-align:center; margin:0;">No deposit history found.</p>`;
+            } else {
+                container.innerHTML = userDeposits.map(d => `
+                    <div class="tx-item">
+                        <div>
+                            <strong style="color:#c9d1d9;">Deposit (${d.status})</strong><br>
+                            <span style="color:#8b949e;">Sender: ${d.senderName} • ${d.date}</span>
+                        </div>
+                        <div style="color:${d.status === 'Approved' ? '#3fb950' : '#e3b341'}; font-weight:bold; font-size:14px;">
+                            ₦${parseFloat(d.amount).toLocaleString()}
+                        </div>
+                    </div>
+                `).join('');
+            }
         }
 
         function submitDeposit(e) {
             e.preventDefault();
-            let amt = Number(document.getElementById('depositAmount').value);
-            let user = document.getElementById('senderUsername').value;
+            let amount = parseFloat(document.getElementById('depAmount').value);
+            let senderName = document.getElementById('depSender').value.trim();
 
-            let newTx = {
-                type: 'Deposit (Pending)',
-                amount: '₦' + amt.toLocaleString(),
-                user: user,
+            let allDeposits = JSON.parse(localStorage.getItem('realona_pending_deposits') || '[]');
+            let newDep = {
+                id: 'DEP-' + Date.now(),
+                email: currentUser.email,
+                username: currentUser.username,
+                senderName: senderName,
+                amount: amount,
+                status: 'Pending',
                 date: new Date().toLocaleDateString()
             };
 
-            txs.unshift(newTx);
-            localStorage.setItem('realonaTransactions', JSON.stringify(txs));
-            
-            alert('Deposit confirmed! Verification takes 5-10 minutes.');
-            document.getElementById('depositAmount').value = '';
-            document.getElementById('senderUsername').value = '';
-            renderTransactions();
+            allDeposits.push(newDep);
+            localStorage.setItem('realona_pending_deposits', JSON.stringify(allDeposits));
+
+            alert('Deposit request submitted! Admin will verify and credit your wallet shortly.');
+            document.getElementById('depAmount').value = '';
+            document.getElementById('depSender').value = '';
+            loadWallet();
         }
 
-        function renderTransactions() {
-            let container = document.getElementById('txList');
-            if (txs.length === 0) {
-                container.innerHTML = 'No recent transactions found.';
-                return;
-            }
-            container.innerHTML = txs.map(t => `
-                <div style="background:#21262d; padding:10px; border-radius:6px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <strong>${t.type}</strong><br>
-                        <span style="font-size:12px; color:#8b949e;">User: ${t.user} • ${t.date}</span>
-                    </div>
-                    <div style="color: #2ea043; font-weight:bold;">${t.amount}</div>
-                </div>
-            `).join('');
-        }
+        loadWallet();
     </script>
 </body>
 </html>

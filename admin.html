@@ -9,15 +9,15 @@
         .admin-container { max-width: 900px; margin: 20px auto; padding: 15px; }
         .admin-card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 20px; margin-bottom: 20px; text-align: left; }
         .tab-buttons { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-        .tab-btn { background: #21262d; border: 1px solid #30363d; color: #8b949e; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px; }
+        .tab-btn { background: #21262d; border: 1px solid #30363d; color: #8b949e; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; }
         .tab-btn.active { background: #1f6feb; color: #fff; border-color: #1f6feb; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; font-size: 13px; color: #8b949e; margin-bottom: 5px; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; background: #0d1117; border: 1px solid #30363d; color: #c9d1d9; border-radius: 6px; box-sizing: border-box; }
-        .btn-admin { background: #238636; color: #fff; border: none; padding: 6px 10px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px; }
-        .btn-danger { background: #da3633; color: #fff; border: none; padding: 6px 10px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px; }
-        .table-custom { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
-        .table-custom th, .table-custom td { border: 1px solid #30363d; padding: 10px; text-align: left; color: #c9d1d9; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; background: #0d1117; border: 1px solid #30363d; color: #c9d1d9; border-radius: 6px; box-sizing: border-box; }
+        .btn-admin { background: #238636; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px; }
+        .btn-danger { background: #da3633; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px; }
+        .table-custom { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+        .table-custom th, .table-custom td { border: 1px solid #30363d; padding: 8px; text-align: left; color: #c9d1d9; }
         .table-custom th { background: #0d1117; }
     </style>
 </head>
@@ -31,80 +31,63 @@
     </nav>
     <div class="admin-container">
         <h2 style="color:#c9d1d9; margin-bottom:5px;">🛡️ Admin Control Center</h2>
-        <p style="color:#8b949e; font-size:13px; margin-bottom:20px;">Manage deposits, escrow disputes, and user wallet balances.</p>
+        <p style="color:#8b949e; font-size:13px; margin-bottom:20px;">Review deposit proof, approve user funding, and manage escrows.</p>
 
         <div class="tab-buttons">
-            <button class="tab-btn active" onclick="switchTab('deposits')">1. Pending Deposits</button>
-            <button class="tab-btn" onclick="switchTab('disputes')">2. Escrow Disputes</button>
-            <button class="tab-btn" onclick="switchTab('wallet')">3. Manual Wallet Adjustment</button>
+            <button class="tab-btn active" onclick="switchTab('deposits')">1. User Deposits</button>
+            <button class="tab-btn" onclick="switchTab('wallet')">2. Manual Balance Adjustment</button>
         </div>
 
         <div id="tabDeposits" class="admin-card">
-            <h3 style="margin-top:0; color:#c9d1d9;">User Deposit Confirmation</h3>
+            <h3 style="margin-top:0; color:#c9d1d9;">Pending Deposit Confirmations</h3>
             <table class="table-custom">
                 <thead>
-                    <tr><th>User Email</th><th>Amount</th><th>Status</th><th>Action</th></tr>
+                    <tr>
+                        <th>User / Email</th>
+                        <th>Sender Name</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
                 </thead>
                 <tbody id="depositsTableBody">
-                    <tr><td colspan="4" style="text-align:center; color:#8b949e;">No pending deposits.</td></tr>
+                    <tr><td colspan="5" style="text-align:center; color:#8b949e;">No pending deposits.</td></tr>
                 </tbody>
             </table>
         </div>
 
-        <div id="tabDisputes" class="admin-card" style="display:none;">
-            <h3 style="margin-top:0; color:#c9d1d9;">Active Escrow Disputes</h3>
-            <table class="table-custom">
-                <thead>
-                    <tr><th>Trade ID</th><th>Status</th><th>Amount</th><th>Actions</th></tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>#TRD-9021</td>
-                        <td style="color:#e3b341;">Active Escrow</td>
-                        <td>₦4,000</td>
-                        <td>
-                            <button onclick="alert('Viewing chat logs...')" class="btn-admin">View Chat</button>
-                            <button onclick="alert('Trade force refunded!')" class="btn-danger">Force Refund</button>
-                            <button onclick="alert('Trade force released!')" class="btn-admin">Force Release</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
         <div id="tabWallet" class="admin-card" style="display:none;">
-            <h3 style="margin-top:0; color:#c9d1d9;">Manual Wallet Adjustment</h3>
+            <h3 style="margin-top:0; color:#c9d1d9;">Manual Wallet Balance Adjustment</h3>
             <form onsubmit="submitWalletAdjustment(event)">
                 <div class="form-group">
-                    <label>User Email</label>
+                    <label>Target User Email</label>
                     <input type="email" id="adjUserEmail" required placeholder="user@gmail.com">
                 </div>
                 <div class="form-group">
                     <label>Action</label>
                     <select id="adjType">
-                        <option value="add">Add Balance (Credit)</option>
-                        <option value="subtract">Subtract Balance (Debit)</option>
+                        <option value="add">Add Funds (Credit)</option>
+                        <option value="subtract">Deduct Funds (Debit)</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label>Amount (₦)</label>
-                    <input type="number" id="adjAmount" required placeholder="5000">
+                    <input type="number" id="adjAmount" required placeholder="10000">
                 </div>
-                <button type="submit" class="btn-admin">Update Balance</button>
+                <button type="submit" class="btn-admin" style="padding:10px;">Execute Balance Update</button>
             </form>
         </div>
     </div>
-
     <script>
         let currentUser = JSON.parse(localStorage.getItem('realonaCurrentUser') || 'null');
         if (!currentUser || !currentUser.isAdmin) {
-            alert('⛔ Access Denied: Administrator privileges required.');
+            alert('⛔ Access Denied: Admin authorization required.');
             window.location.href = 'auth.html';
         }
 
         function switchTab(tab) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('tabDeposits').style.display = tab === 'deposits' ? 'block' : 'none';
-            document.getElementById('tabDisputes').style.display = tab === 'disputes' ? 'block' : 'none';
             document.getElementById('tabWallet').style.display = tab === 'wallet' ? 'block' : 'none';
             event.target.classList.add('active');
         }
@@ -112,14 +95,21 @@
         function loadDeposits() {
             let deposits = JSON.parse(localStorage.getItem('realona_pending_deposits') || '[]');
             let tbody = document.getElementById('depositsTableBody');
-            if (deposits.length === 0) return;
+            
+            if (deposits.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#8b949e;">No deposit requests found.</td></tr>`;
+                return;
+            }
 
             tbody.innerHTML = deposits.map((dep, idx) => `
                 <tr>
-                    <td>${dep.email}</td>
+                    <td><strong>${dep.username}</strong><br><span style="color:#8b949e;">${dep.email}</span></td>
+                    <td>${dep.senderName}</td>
                     <td style="color:#3fb950; font-weight:bold;">₦${parseFloat(dep.amount).toLocaleString()}</td>
-                    <td style="color:#e3b341;">${dep.status || 'Pending'}</td>
-                    <td><button onclick="approveDeposit(${idx})" class="btn-admin">Approve</button></td>
+                    <td style="color:${dep.status === 'Approved' ? '#3fb950' : '#e3b341'};">${dep.status}</td>
+                    <td>
+                        ${dep.status === 'Pending' ? `<button onclick="approveDeposit(${idx})" class="btn-admin">Approve & Credit</button>` : '<span>✅ Approved</span>'}
+                    </td>
                 </tr>
             `).join('');
         }
@@ -127,26 +117,32 @@
         function approveDeposit(idx) {
             let deposits = JSON.parse(localStorage.getItem('realona_pending_deposits') || '[]');
             let item = deposits[idx];
+
+            // 1. Fetch target user's current wallet
             let currentBal = parseFloat(localStorage.getItem('realona_wallet_' + item.email) || '0');
             let newBal = currentBal + parseFloat(item.amount);
             
-            localStorage.setItem('realona_wallet_' + item.email, newBal);
-            deposits.splice(idx, 1);
+            // 2. Update target user wallet balance
+            localStorage.setItem('realona_wallet_' + item.email, newBal.toString());
+            
+            // 3. Mark transaction as Approved
+            deposits[idx].status = 'Approved';
             localStorage.setItem('realona_pending_deposits', JSON.stringify(deposits));
-            alert(`✅ Approved ₦${item.amount} for ${item.email}`);
-            location.reload();
+
+            alert(`✅ Approved! Credited ₦${item.amount.toLocaleString()} to ${item.email}. New balance: ₦${newBal.toLocaleString()}`);
+            loadDeposits();
         }
 
         function submitWalletAdjustment(e) {
             e.preventDefault();
-            let email = document.getElementById('adjUserEmail').value.trim();
+            let email = document.getElementById('adjUserEmail').value.trim().toLowerCase();
             let type = document.getElementById('adjType').value;
             let amount = parseFloat(document.getElementById('adjAmount').value);
 
             let currentBal = parseFloat(localStorage.getItem('realona_wallet_' + email) || '0');
             let newBal = type === 'add' ? currentBal + amount : Math.max(0, currentBal - amount);
 
-            localStorage.setItem('realona_wallet_' + email, newBal);
+            localStorage.setItem('realona_wallet_' + email, newBal.toString());
             alert(`✅ Updated wallet for ${email}! New balance: ₦${newBal.toLocaleString()}`);
             document.getElementById('adjUserEmail').value = '';
             document.getElementById('adjAmount').value = '';
