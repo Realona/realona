@@ -3,22 +3,16 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Account Management - Realona</title>
+    <title>Account - Realona</title>
     <link rel="stylesheet" href="style.css">
     <style>
         .auth-container { max-width: 450px; margin: 30px auto; padding: 20px; }
         .auth-card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 25px; }
-        .tab-group { display: flex; gap: 10px; margin-bottom: 20px; }
-        .auth-tab { flex: 1; padding: 10px; background: #21262d; border: 1px solid #30363d; color: #8b949e; border-radius: 6px; cursor: pointer; font-weight: bold; }
-        .auth-tab.active { background: #238636; color: #fff; border-color: #238636; }
         .form-group { margin-bottom: 15px; text-align: left; }
         .form-group label { display: block; font-size: 13px; color: #8b949e; margin-bottom: 5px; }
         .form-group input { width: 100%; padding: 10px; background: #0d1117; border: 1px solid #30363d; color: #c9d1d9; border-radius: 6px; box-sizing: border-box; }
         .btn-submit { width: 100%; padding: 12px; background: #238636; color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
         .btn-logout { width: 100%; padding: 12px; background: #da3633; color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 15px; }
-        .profile-info { background: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 12px; margin-bottom: 10px; }
-        .profile-info label { font-size: 11px; color: #8b949e; display: block; }
-        .profile-info div { font-size: 15px; font-weight: bold; color: #c9d1d9; margin-top: 2px; }
     </style>
 </head>
 <body>
@@ -31,104 +25,50 @@
     </nav>
     <div class="auth-container">
         <div id="profileBox" class="auth-card" style="display:none;">
-            <h2 style="margin-bottom: 5px; color:#c9d1d9;">👤 Account Details</h2>
-            <div class="profile-info">
-                <label>Username / Name</label>
-                <div id="profUsername">-</div>
+            <h2 style="color:#c9d1d9;">👤 Account</h2>
+            <p id="profInfo" style="color:#8b949e; font-size:14px;"></p>
+            <div id="adminLinkArea" style="margin-top:15px; display:none;">
+                <a href="admin.html" style="display:block; text-align:center; background:#1f6feb; color:#fff; padding:10px; border-radius:6px; text-decoration:none; font-weight:bold;">🛡️ Open Admin Panel</a>
             </div>
-            <div class="profile-info">
-                <label>Email Address</label>
-                <div id="profEmail">-</div>
-            </div>
-            <button onclick="handleLogout()" class="btn-logout">🚪 Sign Out</button>
+            <button onclick="handleLogout()" class="btn-logout">Sign Out</button>
         </div>
 
         <div id="authFormsBox" class="auth-card">
-            <div class="tab-group">
-                <button id="tabRegister" class="auth-tab" onclick="switchTab('register')">Register</button>
-                <button id="tabLogin" class="auth-tab active" onclick="switchTab('login')">Login</button>
-            </div>
-
-            <form id="registerForm" onsubmit="handleRegister(event)" style="display:none;">
-                <h3 style="margin-bottom: 15px; color:#c9d1d9;">Create Account</h3>
-                <div class="form-group">
-                    <label>Username</label>
-                    <input type="text" id="regUsername" required placeholder="Kolade Joseph">
-                </div>
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="regEmail" required placeholder="email@gmail.com">
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="regPass" required placeholder="••••••••">
-                </div>
-                <button type="submit" class="btn-submit">Register</button>
-            </form>
+            <h3 style="color:#c9d1d9; margin-bottom:15px;">Sign In</h3>
             <form id="loginForm" onsubmit="handleLogin(event)">
-                <h3 style="margin-bottom: 15px; color:#c9d1d9;">Sign In</h3>
                 <div class="form-group">
                     <label>Email</label>
-                    <input type="email" id="loginEmail" required placeholder="email@gmail.com">
+                    <input type="email" id="loginEmail" required placeholder="realonabusinessexchange@gmail.com">
                 </div>
                 <div class="form-group">
                     <label>Password</label>
-                    <input type="password" id="loginPass" required placeholder="••••••••">
+                    <input type="password" id="loginPass" required placeholder="Kolade1642@#">
                 </div>
                 <button type="submit" class="btn-submit">Sign In</button>
             </form>
         </div>
     </div>
-
     <script>
         function checkSession() {
             let user = JSON.parse(localStorage.getItem('realonaCurrentUser') || 'null');
-            if (user && user.username) {
+            if (user && user.email) {
                 document.getElementById('profileBox').style.display = 'block';
                 document.getElementById('authFormsBox').style.display = 'none';
-                document.getElementById('profUsername').innerText = user.username + (user.isAdmin ? ' 👑 (Admin)' : '');
-                document.getElementById('profEmail').innerText = user.email || '';
+                document.getElementById('profInfo').innerText = user.username + ' (' + user.email + ')';
                 document.getElementById('navAuth').innerText = '👤 ' + user.username;
-            } else {
-                document.getElementById('profileBox').style.display = 'none';
-                document.getElementById('authFormsBox').style.display = 'block';
+                if (user.isAdmin) {
+                    document.getElementById('adminLinkArea').style.display = 'block';
+                }
             }
-        }
-
-        function switchTab(tab) {
-            document.getElementById('tabRegister').classList.toggle('active', tab === 'register');
-            document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
-            document.getElementById('registerForm').style.display = tab === 'register' ? 'block' : 'none';
-            document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
-        }
-
-        function handleRegister(e) {
-            e.preventDefault();
-            let username = document.getElementById('regUsername').value.trim();
-            let email = document.getElementById('regEmail').value.trim();
-            let pass = document.getElementById('regPass').value;
-
-            let users = JSON.parse(localStorage.getItem('realonaUsers') || '[]');
-            if (users.find(u => u.email === email)) {
-                alert('Email already exists!');
-                return;
-            }
-
-            let newUser = { username, email, pass, createdAt: new Date().toLocaleDateString() };
-            users.push(newUser);
-            localStorage.setItem('realonaUsers', JSON.stringify(users));
-            localStorage.setItem('realonaCurrentUser', JSON.stringify(newUser));
-            alert('Registered successfully!');
-            checkSession();
         }
 
         function handleLogin(e) {
             e.preventDefault();
             let email = document.getElementById('loginEmail').value.trim();
-            let passVal = document.getElementById('loginPass').value;
+            let pass = document.getElementById('loginPass').value;
 
-            if (email === 'realonabusinessexchange@gmail.com' && passVal === 'Kolade1642@#') {
-                let adminUser = { username: 'Realona Admin', email: email, isAdmin: true, createdAt: new Date().toLocaleDateString() };
+            if (email === 'realonabusinessexchange@gmail.com' && pass === 'Kolade1642@#') {
+                let adminUser = { username: 'Realona Admin', email: email, isAdmin: true };
                 localStorage.setItem('realonaCurrentUser', JSON.stringify(adminUser));
                 alert('👑 Admin login successful!');
                 window.location.href = 'admin.html';
@@ -136,12 +76,11 @@
             }
 
             let users = JSON.parse(localStorage.getItem('realonaUsers') || '[]');
-            let found = users.find(u => u.email === email && u.pass === passVal);
+            let found = users.find(u => u.email === email && u.pass === pass);
 
             if (found) {
                 localStorage.setItem('realonaCurrentUser', JSON.stringify(found));
                 alert('Login successful!');
-                checkSession();
                 window.location.href = 'index.html';
             } else {
                 alert('Invalid email or password!');
@@ -149,10 +88,8 @@
         }
 
         function handleLogout() {
-            if (confirm('Sign out?')) {
-                localStorage.removeItem('realonaCurrentUser');
-                window.location.href = 'index.html';
-            }
+            localStorage.removeItem('realonaCurrentUser');
+            window.location.reload();
         }
 
         checkSession();
