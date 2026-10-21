@@ -59,10 +59,17 @@
     </div>
     <script>
         function renderListing() {
+            // Guard clause: require user authentication to view listings
+            let currentUser = JSON.parse(localStorage.getItem('realonaCurrentUser') || 'null');
+            if (!currentUser || !currentUser.email) {
+                alert('Please sign in or register to interact with listings.');
+                window.location.href = 'auth.html';
+                return;
+            }
+
             const urlParams = new URLSearchParams(window.location.search);
             const id = urlParams.get('id') || 0;
             let listings = JSON.parse(localStorage.getItem('realonaListings') || '[]');
-            let currentUser = JSON.parse(localStorage.getItem('realonaCurrentUser') || '{}');
             let item = listings[id] || listings[0];
 
             if (item) {
@@ -86,7 +93,7 @@
                 document.getElementById('featureBadges').innerHTML = badgesHtml;
 
                 // Check if current user is the seller
-                if (currentUser.email && item.sellerEmail === currentUser.email) {
+                if (item.sellerEmail === currentUser.email) {
                     document.getElementById('actionArea').innerHTML = `
                         <div class="own-listing-badge">🔒 This is your own listing</div>
                     `;
