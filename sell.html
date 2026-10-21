@@ -96,6 +96,13 @@
         document.getElementById('sellForm').addEventListener('submit', function(e) {
             e.preventDefault();
 
+            let currentUser = JSON.parse(localStorage.getItem('realonaCurrentUser') || 'null');
+            if (!currentUser || !currentUser.email) {
+                alert('Please sign in first before listing an account!');
+                window.location.href = 'auth.html';
+                return;
+            }
+
             let division = document.getElementById('sellDivision').value;
             let rating = document.getElementById('sellRating').value.trim();
             let price = document.getElementById('sellPrice').value.trim();
@@ -114,6 +121,7 @@
                         price: price,
                         status: 'Active',
                         category: 'eFootball',
+                        sellerEmail: currentUser.email, // Tied specifically to logged-in user
                         image: imgData || '',
                         credentials: { email, pass }
                     };
@@ -122,10 +130,10 @@
                     existingListings.unshift(newListing);
                     localStorage.setItem('realonaListings', JSON.stringify(existingListings));
 
-                    alert('✅ Account listed successfully!');
+                    alert('✅ Account listed successfully under your account!');
                     window.location.href = 'index.html';
                 } catch (err) {
-                    alert('Error saving listing: ' + err.message);
+                    alert('Storage error: ' + err.message);
                 }
             }
 

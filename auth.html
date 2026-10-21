@@ -30,7 +30,6 @@
         <a href="auth.html" style="color:#58a6ff;" id="navAuth">Account</a>
     </nav>
     <div class="auth-container">
-        <!-- Logged In Profile Card -->
         <div id="profileBox" class="auth-card" style="display:none;">
             <h2 style="margin-bottom: 5px; color:#c9d1d9;">👤 Account Details</h2>
             <p style="color:#8b949e; font-size:12px; margin-bottom:20px;">Your active Realona profile information</p>
@@ -44,10 +43,6 @@
                 <div id="profEmail">-</div>
             </div>
             <div class="profile-info">
-                <label>Phone Number</label>
-                <div id="profPhone">-</div>
-            </div>
-            <div class="profile-info">
                 <label>Member Since</label>
                 <div id="profJoined">-</div>
             </div>
@@ -55,7 +50,6 @@
             <button onclick="handleLogout()" class="btn-logout">🚪 Sign Out</button>
         </div>
 
-        <!-- Logged Out Auth Card -->
         <div id="authFormsBox" class="auth-card">
             <div class="tab-group">
                 <button id="tabRegister" class="auth-tab active" onclick="switchTab('register')">Register</button>
@@ -73,10 +67,6 @@
                     <input type="email" id="regEmail" required placeholder="your-email@gmail.com">
                 </div>
                 <div class="form-group">
-                    <label>Phone Number</label>
-                    <input type="tel" id="regPhone" required placeholder="08123456789">
-                </div>
-                <div class="form-group">
                     <label>Password</label>
                     <input type="password" id="regPass" required placeholder="Create strong password">
                 </div>
@@ -85,17 +75,14 @@
             <form id="loginForm" onsubmit="handleLogin(event)" style="display:none;">
                 <h3 style="margin-bottom: 15px; color:#c9d1d9;">Welcome Back</h3>
                 <div class="form-group">
-                    <label>Email Address or Phone</label>
-                    <input type="text" id="loginId" required placeholder="Email or Phone number">
+                    <label>Email Address</label>
+                    <input type="email" id="loginEmail" required placeholder="your-email@gmail.com">
                 </div>
                 <div class="form-group">
                     <label>Password</label>
                     <input type="password" id="loginPass" required placeholder="••••••••">
                 </div>
                 <button type="submit" class="btn-submit">Sign In</button>
-                <div style="margin-top:15px; text-align:right;">
-                    <a href="reset-password.html" style="color:#58a6ff; font-size:12px; text-decoration:none;">Forgot Password? (OTP)</a>
-                </div>
             </form>
         </div>
     </div>
@@ -104,17 +91,14 @@
         function checkSession() {
             let user = JSON.parse(localStorage.getItem('realonaCurrentUser') || 'null');
             if (user && user.username) {
-                // Show Profile Card
                 document.getElementById('profileBox').style.display = 'block';
                 document.getElementById('authFormsBox').style.display = 'none';
 
                 document.getElementById('profUsername').innerText = user.username;
                 document.getElementById('profEmail').innerText = user.email || 'Not provided';
-                document.getElementById('profPhone').innerText = user.phone || 'Not provided';
                 document.getElementById('profJoined').innerText = user.createdAt || 'Recently';
                 document.getElementById('navAuth').innerText = '👤 ' + user.username;
             } else {
-                // Show Login / Register Forms
                 document.getElementById('profileBox').style.display = 'none';
                 document.getElementById('authFormsBox').style.display = 'block';
             }
@@ -131,16 +115,15 @@
             e.preventDefault();
             let username = document.getElementById('regUsername').value.trim();
             let email = document.getElementById('regEmail').value.trim();
-            let phone = document.getElementById('regPhone').value.trim();
             let pass = document.getElementById('regPass').value;
 
             let users = JSON.parse(localStorage.getItem('realonaUsers') || '[]');
-            if (users.find(u => u.email === email || u.phone === phone)) {
-                alert('An account with this email or phone number already exists!');
+            if (users.find(u => u.email === email)) {
+                alert('An account with this email already exists!');
                 return;
             }
 
-            let newUser = { username, email, phone, pass, createdAt: new Date().toLocaleDateString() };
+            let newUser = { username, email, pass, createdAt: new Date().toLocaleDateString() };
             users.push(newUser);
             localStorage.setItem('realonaUsers', JSON.stringify(users));
             localStorage.setItem('realonaCurrentUser', JSON.stringify(newUser));
@@ -151,18 +134,18 @@
 
         function handleLogin(e) {
             e.preventDefault();
-            let inputId = document.getElementById('loginId').value.trim();
+            let email = document.getElementById('loginEmail').value.trim();
             let passVal = document.getElementById('loginPass').value;
 
             let users = JSON.parse(localStorage.getItem('realonaUsers') || '[]');
-            let found = users.find(u => (u.email === inputId || u.phone === inputId) && u.pass === passVal);
+            let found = users.find(u => u.email === email && u.pass === passVal);
 
             if (found) {
                 localStorage.setItem('realonaCurrentUser', JSON.stringify(found));
                 alert('Login successful! Welcome back, ' + found.username + '.');
                 checkSession();
             } else {
-                alert('Invalid email/phone or password!');
+                alert('Invalid email or password!');
             }
         }
 
