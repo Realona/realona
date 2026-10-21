@@ -6,7 +6,7 @@
     <title>Dashboard - Realona</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        .dash-card { background: #161b22; border: 1px solid #30363d; border-radius: 10px; padding: 15px; text-align: left; margin-bottom: 15px; }
+        .dash-card { background: #161b22; border: 1px solid #30363d; border-radius: 10px; padding: 15px; margin-bottom: 15px; text-align: left; }
         .grid-2x2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
         .grid-3x2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
         .stat-label { font-size: 12px; color: #8b949e; display: block; }
@@ -44,7 +44,7 @@
             <div class="dash-card" style="margin:0;">
                 <span class="stat-label">Active Trades</span>
                 <div class="stat-val" id="dashActiveTrades" style="color:#e3b341;">0</div>
-                <a href="#" class="stat-link">View Trades →</a>
+                <a href="#recentTradesSection" class="stat-link">View Trades →</a>
             </div>
             <div class="dash-card" style="margin:0;">
                 <span class="stat-label">Completed Trades</span>
@@ -57,30 +57,24 @@
             <h3 style="margin:0 0 12px 0; color:#c9d1d9; font-size:15px;">📦 Your Active Listings</h3>
             <div id="myListingsContainer"></div>
         </div>
+
         <div class="dash-card">
             <h3 style="margin:0 0 8px 0; color:#c9d1d9; font-size:15px;">Quick Actions</h3>
             <div class="grid-3x2">
                 <a href="sell.html" class="btn-action primary">+ New Listing</a>
                 <a href="index.html" class="btn-action">🔍 Marketplace</a>
                 <a href="wallet.html" class="btn-action">💰 Deposit / Withdraw</a>
-                <a href="#" onclick="alert('My Offers feature coming soon!')" class="btn-action">🏷️ My Offers</a>
+                <a href="#" onclick="alert('My Offers coming soon!')" class="btn-action">🏷️ My Offers</a>
                 <a href="#" onclick="alert('Leaderboard coming soon!')" class="btn-action">🏆 Leaderboard</a>
                 <a href="#" onclick="alert('Purchase History coming soon!')" class="btn-action">📜 Purchase History</a>
             </div>
         </div>
 
-        <div class="dash-card">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                <h3 style="margin:0; color:#c9d1d9; font-size:15px;">Recent Trades</h3>
-                <a href="#" style="color:#58a6ff; font-size:11px; text-decoration:none;">View all →</a>
-            </div>
-            <div id="recentTradesContainer" style="color:#8b949e; font-size:12px; text-align:center; padding:15px;">
-                No active trades yet.<br>
-                <a href="index.html" style="color:#58a6ff; text-decoration:none; display:inline-block; margin-top:5px;">Browse listings to start trading</a>
-            </div>
+        <div id="recentTradesSection" class="dash-card">
+            <h3 style="margin:0 0 10px 0; color:#c9d1d9; font-size:15px;">Recent Trades & Escrow Chats</h3>
+            <div id="recentTradesContainer"></div>
         </div>
     </div>
-
     <script>
         function loadDashboard() {
             let user = JSON.parse(localStorage.getItem('realonaCurrentUser') || 'null');
@@ -90,22 +84,22 @@
                 return;
             }
 
+            let uEmail = user.email.toLowerCase().trim();
             document.getElementById('dashWelcome').innerText = `Welcome back, ${user.username || 'Trader'}! 👋`;
             
-            // Safe wallet parsing to prevent NaN
-            let rawBal = localStorage.getItem('realona_wallet_' + user.email);
+            let rawBal = localStorage.getItem('realona_wallet_' + uEmail);
             let balance = (rawBal && !isNaN(rawBal)) ? parseFloat(rawBal) : 0;
             document.getElementById('dashWallet').innerText = '₦' + balance.toLocaleString();
 
             let listings = JSON.parse(localStorage.getItem('realonaListings') || '[]');
             let myListings = listings.map((item, idx) => ({ ...item, globalIndex: idx }))
-                                     .filter(item => item.sellerEmail === user.email);
+                                     .filter(item => item.sellerEmail && item.sellerEmail.toLowerCase().trim() === uEmail && item.status === 'Active');
 
             document.getElementById('dashActiveCount').innerText = myListings.length;
             let container = document.getElementById('myListingsContainer');
             
             if (myListings.length === 0) {
-                container.innerHTML = `<p style="color:#8b949e; font-size:12px; text-align:center; padding:10px; margin:0;">You have no active listings yet. Click "+ New Listing" above!</p>`;
+                container.innerHTML = `<p style="color:#8b949e; font-size:12px; text-align:center; padding:10px; margin:0;">No active listings yet.</p>`;
             } else {
                 container.innerHTML = myListings.map(item => `
                     <div class="item-row">
@@ -118,6 +112,129 @@
                         <div style="display:flex; gap:6px;">
                             <a href="listing.html?id=${item.globalIndex}" style="background:#21262d; border:1px solid #30363d; color:#58a6ff; padding:5px 8px; border-radius:4px; font-size:11px; text-decoration:none;">View</a>
                             <button onclick="deleteListing(${item.globalIndex})" style="background:#da3633; color:#fff; border:none; padding:5px 8px; border-radius:4px; font-size:11px; cursor:pointer;">Delete</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            let trades = JSON.parse(localStorage.getItem('realona_trades') || '[]');
+            let userTrades = trades.filter(t => t.buyerEmail === uEmail || t.sellerEmail === uEmail);
+
+            document.getElementById('dashActiveTrades').innerText = userTrades.filter(t => t.status === 'In Escrow').length;
+            document.getElementById('dashCompletedTrades').innerText = userTrades.filter(t => t.status === 'Completed').length;
+
+            let tradesContainer = document.getElementById('recentTradesContainer');
+            if (userTrades.length === 0) {
+                tradesContainer.innerHTML = `<div style="color:#8b949e; font-size:12px; text-align:center; padding:15px;">No active trades yet.<br><a href="index.html" style="color:#58a6ff; text-decoration:none; display:inline-block; margin-top:5px;">Browse listings to start trading</a></div>`;
+            } else {
+                tradesContainer.innerHTML = userTrades.map(t => `
+                    <div class="item-row">
+                        <div>
+                            <strong style="color:#c9d1d9; font-size:13px;">${t.title}</strong>
+                            <div style="color:#8b949e; font-size:11px; margin-top:2px;">
+                                Status: <span style="color:${t.status === 'Completed' ? '#3fb950' : '#e3b341'}; font-weight:bold;">${t.status}</span> • <span style="color:#58a6ff;">${t.price}</span>
+                            </div>
+                        </div>
+                        <div>
+                            <a href="buy.html?id=${t.listingId}" style="background:#1f6feb; color:#fff; padding:6px 10px; border-radius:4px; font-size:11px; text-decoration:none; font-weight:bold;">💬 View Chat</a>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function deleteListing(idx) {
+            if (confirm('Delete this listing?')) {
+                let listings = JSON.parse(localStorage.getItem('realonaListings') || '[]');
+                listings.splice(idx, 1);
+                localStorage.setItem('realonaListings', JSON.stringify(listings));
+                loadDashboard();
+            }
+        }
+
+        loadDashboard();
+    </script>
+</body>
+</html>
+        <div class="dash-card">
+            <h3 style="margin:0 0 8px 0; color:#c9d1d9; font-size:15px;">Quick Actions</h3>
+            <div class="grid-3x2">
+                <a href="sell.html" class="btn-action primary">+ New Listing</a>
+                <a href="index.html" class="btn-action">🔍 Marketplace</a>
+                <a href="wallet.html" class="btn-action">💰 Deposit / Withdraw</a>
+                <a href="#" onclick="alert('My Offers coming soon!')" class="btn-action">🏷️ My Offers</a>
+                <a href="#" onclick="alert('Leaderboard coming soon!')" class="btn-action">🏆 Leaderboard</a>
+                <a href="#" onclick="alert('Purchase History coming soon!')" class="btn-action">📜 Purchase History</a>
+            </div>
+        </div>
+
+        <div id="recentTradesSection" class="dash-card">
+            <h3 style="margin:0 0 10px 0; color:#c9d1d9; font-size:15px;">Recent Trades & Escrow Chats</h3>
+            <div id="recentTradesContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        function loadDashboard() {
+            let user = JSON.parse(localStorage.getItem('realonaCurrentUser') || 'null');
+            if (!user || !user.email) {
+                alert('Please sign in first.');
+                window.location.href = 'auth.html';
+                return;
+            }
+
+            let uEmail = user.email.toLowerCase().trim();
+            document.getElementById('dashWelcome').innerText = `Welcome back, ${user.username || 'Trader'}! 👋`;
+            
+            let rawBal = localStorage.getItem('realona_wallet_' + uEmail);
+            let balance = (rawBal && !isNaN(rawBal)) ? parseFloat(rawBal) : 0;
+            document.getElementById('dashWallet').innerText = '₦' + balance.toLocaleString();
+
+            let listings = JSON.parse(localStorage.getItem('realonaListings') || '[]');
+            let myListings = listings.map((item, idx) => ({ ...item, globalIndex: idx }))
+                                     .filter(item => item.sellerEmail && item.sellerEmail.toLowerCase().trim() === uEmail && item.status === 'Active');
+
+            document.getElementById('dashActiveCount').innerText = myListings.length;
+            let container = document.getElementById('myListingsContainer');
+            
+            if (myListings.length === 0) {
+                container.innerHTML = `<p style="color:#8b949e; font-size:12px; text-align:center; padding:10px; margin:0;">No active listings yet.</p>`;
+            } else {
+                container.innerHTML = myListings.map(item => `
+                    <div class="item-row">
+                        <div>
+                            <strong style="color:#c9d1d9; font-size:13px;">${item.title}</strong>
+                            <div style="color:#8b949e; font-size:11px; margin-top:2px;">
+                                <span class="badge-active">Active</span> • <span style="color:#58a6ff; font-weight:bold;">${item.price}</span>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:6px;">
+                            <a href="listing.html?id=${item.globalIndex}" style="background:#21262d; border:1px solid #30363d; color:#58a6ff; padding:5px 8px; border-radius:4px; font-size:11px; text-decoration:none;">View</a>
+                            <button onclick="deleteListing(${item.globalIndex})" style="background:#da3633; color:#fff; border:none; padding:5px 8px; border-radius:4px; font-size:11px; cursor:pointer;">Delete</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            let trades = JSON.parse(localStorage.getItem('realona_trades') || '[]');
+            let userTrades = trades.filter(t => t.buyerEmail === uEmail || t.sellerEmail === uEmail);
+
+            document.getElementById('dashActiveTrades').innerText = userTrades.filter(t => t.status === 'In Escrow').length;
+            document.getElementById('dashCompletedTrades').innerText = userTrades.filter(t => t.status === 'Completed').length;
+
+            let tradesContainer = document.getElementById('recentTradesContainer');
+            if (userTrades.length === 0) {
+                tradesContainer.innerHTML = `<div style="color:#8b949e; font-size:12px; text-align:center; padding:15px;">No active trades yet.<br><a href="index.html" style="color:#58a6ff; text-decoration:none; display:inline-block; margin-top:5px;">Browse listings to start trading</a></div>`;
+            } else {
+                tradesContainer.innerHTML = userTrades.map(t => `
+                    <div class="item-row">
+                        <div>
+                            <strong style="color:#c9d1d9; font-size:13px;">${t.title}</strong>
+                            <div style="color:#8b949e; font-size:11px; margin-top:2px;">
+                                Status: <span style="color:${t.status === 'Completed' ? '#3fb950' : '#e3b341'}; font-weight:bold;">${t.status}</span> • <span style="color:#58a6ff;">${t.price}</span>
+                            </div>
+                        </div>
+                        <div>
+                            <a href="buy.html?id=${t.listingId}" style="background:#1f6feb; color:#fff; padding:6px 10px; border-radius:4px; font-size:11px; text-decoration:none; font-weight:bold;">💬 View Chat</a>
                         </div>
                     </div>
                 `).join('');
