@@ -8,9 +8,10 @@
     <style>
         .listing-card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 20px; margin-top: 15px; }
         .img-container { position: relative; width: 100%; background: #0d1117; border-radius: 8px; border: 1px solid #30363d; margin-bottom: 15px; overflow: hidden; cursor: pointer; text-align: center; }
-        .img-preview { width: 100%; max-height: 450px; object-fit: contain; display: block; margin: 0 auto; background: #000; }
-        .zoom-badge { position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.8); color: #fff; font-size: 12px; padding: 6px 10px; border-radius: 4px; pointer-events: none; font-weight: bold; }
+        .img-preview { width: 100%; max-height: 420px; object-fit: contain; display: block; margin: 0 auto; background: #000; }
+        .zoom-badge { position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.8); color: #fff; font-size: 11px; padding: 4px 8px; border-radius: 4px; pointer-events: none; }
         .btn-buy { display: block; width: 100%; text-align: center; padding: 12px; background: #238636; color: #fff; font-weight: bold; border-radius: 6px; text-decoration: none; margin-top: 15px; border: none; cursor: pointer; box-sizing: border-box; }
+        .own-listing-badge { display: block; width: 100%; text-align: center; padding: 12px; background: #21262d; border: 1px solid #30363d; color: #8b949e; font-weight: bold; border-radius: 6px; margin-top: 15px; box-sizing: border-box; }
         .back-link { color: #58a6ff; text-decoration: none; font-size: 13px; display: inline-block; margin-bottom: 10px; }
         .feature-badge { display: inline-block; background: #21262d; border: 1px solid #30363d; color: #c9d1d9; padding: 4px 8px; border-radius: 6px; font-size: 12px; margin-right: 6px; margin-top: 6px; }
 
@@ -37,6 +38,7 @@
             
             <h2 id="itemTitle" style="margin: 0 0 8px 0; color:#c9d1d9;">eFootball Pro Account</h2>
             <p id="itemDetails" style="color:#8b949e; font-size:14px; margin: 0 0 10px 0;">3000 OVR • Division 3 • Top Player: Messi</p>
+            <div id="sellerTag" style="font-size:12px; color:#58a6ff; margin-bottom:10px;"></div>
             
             <div id="featureBadges" style="margin-bottom: 15px;"></div>
 
@@ -46,7 +48,9 @@
                 🛡️ <strong>Realona Escrow Protection:</strong> Funds are held securely until you verify and log into the account successfully.
             </div>
 
-            <a id="buyBtnLink" href="#" class="btn-buy">Buy via Escrow</a>
+            <div id="actionArea">
+                <a id="buyBtnLink" href="#" class="btn-buy">Buy via Escrow</a>
+            </div>
         </div>
     </div>
 
@@ -58,6 +62,7 @@
             const urlParams = new URLSearchParams(window.location.search);
             const id = urlParams.get('id') || 0;
             let listings = JSON.parse(localStorage.getItem('realonaListings') || '[]');
+            let currentUser = JSON.parse(localStorage.getItem('realonaCurrentUser') || '{}');
             let item = listings[id] || listings[0];
 
             if (item) {
@@ -65,6 +70,10 @@
                 document.getElementById('itemDetails').innerText = item.details;
                 document.getElementById('itemPrice').innerText = item.price;
                 
+                if (item.sellerName) {
+                    document.getElementById('sellerTag').innerText = '👤 Listed by: ' + item.sellerName;
+                }
+
                 if (item.image && item.image.trim() !== '') {
                     document.getElementById('itemImg').src = item.image;
                     document.getElementById('modalImg').src = item.image;
@@ -76,13 +85,20 @@
                 let badgesHtml = parts.map(p => `<span class="feature-badge">✓ ${p.trim()}</span>`).join('');
                 document.getElementById('featureBadges').innerHTML = badgesHtml;
 
-                document.getElementById('buyBtnLink').href = 'buy.html?id=' + id;
+                // Check if current user is the seller
+                if (currentUser.email && item.sellerEmail === currentUser.email) {
+                    document.getElementById('actionArea').innerHTML = `
+                        <div class="own-listing-badge">🔒 This is your own listing</div>
+                    `;
+                } else {
+                    document.getElementById('buyBtnLink').href = 'buy.html?id=' + id;
+                }
             }
         }
 
         function openModal() {
             let imgSrc = document.getElementById('itemImg').src;
-            if(imgSrc && !imgSrc.includes('placeholder')) {
+            if (imgSrc && !imgSrc.includes('placeholder')) {
                 document.getElementById('imgModal').style.display = 'flex';
             }
         }
