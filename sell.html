@@ -3,166 +3,81 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Sell Account - Realona</title>
+    <title>Sell Item - Realona</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        .form-card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 20px; max-width: 500px; margin: 20px auto; }
-        .form-group { margin-bottom: 15px; text-align: left; }
-        .form-group label { display: block; font-size: 13px; color: #8b949e; margin-bottom: 5px; }
-        .form-group input, .form-group select { width: 100%; padding: 10px; background: #0d1117; border: 1px solid #30363d; color: #c9d1d9; border-radius: 6px; box-sizing: border-box; }
-        .tag-badge { display: inline-block; background: #1f6feb; color: #fff; padding: 4px 8px; border-radius: 12px; font-size: 12px; margin-right: 5px; margin-top: 5px; }
-        .btn-submit { width: 100%; padding: 12px; background: #238636; color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .back-link { color: #58a6ff; text-decoration: none; font-size: 13px; display: inline-block; margin-bottom: 10px; }
+        body { background: #0d1117; color: #c9d1d9; font-family: sans-serif; margin:0; padding-bottom:40px; }
+        nav { background: #161b22; padding: 12px; display: flex; justify-content: space-around; border-bottom: 1px solid #30363d; }
+        nav a { color: #58a6ff; text-decoration: none; font-size: 14px; font-weight: bold; }
+        .form-container { max-width: 500px; margin: 20px auto; background: #161b22; border: 1px solid #30363d; padding: 20px; border-radius: 12px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 6px; color: #c9d1d9; }
+        .form-group input, .form-group textarea { width: 100%; padding: 10px; background: #0d1117; border: 1px solid #30363d; color: #fff; border-radius: 6px; box-sizing: border-box; }
+        .btn-submit { background: #238636; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; }
     </style>
 </head>
 <body>
     <nav>
         <a href="index.html">Home</a>
-        <a href="sell.html" style="color:#58a6ff;">Sell Account</a>
+        <a href="sell.html" style="color:#58a6ff;">Sell</a>
         <a href="dashboard.html">Dashboard</a>
         <a href="wallet.html">Wallet</a>
         <a href="auth.html">Account</a>
     </nav>
-    <div class="sell-container">
-        <a href="index.html" class="back-link">← Back</a>
-        <div class="form-card">
-            <h2 style="margin-bottom:15px; color:#c9d1d9;">Sell eFootball Account</h2>
-            <form id="sellForm">
-                <div class="form-group">
-                    <label>Add Top Player (e.g. Bellingham, Messi)</label>
-                    <div style="display:flex; gap:8px;">
-                        <input type="text" id="playerInput" placeholder="Enter player name">
-                        <button type="button" onclick="addPlayerTag()" style="background:#21262d; border:1px solid #30363d; color:#58a6ff; padding:8px 12px; border-radius:6px; cursor:pointer; font-weight:bold;">+ Add</button>
-                    </div>
-                    <div id="playerTagsContainer"></div>
-                </div>
 
-                <div class="form-group">
-                    <label>Division</label>
-                    <select id="sellDivision">
-                        <option value="Division 1">Division 1</option>
-                        <option value="Division 2">Division 2</option>
-                        <option value="Division 3">Division 3</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Squad Rating (OVR)</label>
-                    <input type="number" id="sellRating" placeholder="3000" required>
-                </div>
-
-                <div class="form-group">
-                    <label>Price (₦)</label>
-                    <input type="text" id="sellPrice" required placeholder="₦5,000">
-                </div>
-
-                <div class="form-group">
-                    <label>Account Screenshot</label>
-                    <input type="file" id="sellImage" accept="image/*">
-                </div>
-
-                <h4 style="color:#c9d1d9; margin: 15px 0 10px 0;">Account Credentials</h4>
-                <div class="form-group">
-                    <label>Login Email / ID</label>
-                    <input type="text" id="sellEmail" required placeholder="buyer@demo.com">
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="sellPass" required placeholder="••••••••">
-                </div>
-
-                <button type="submit" class="btn-submit">List My eFootball Account</button>
-            </form>
-        </div>
+    <div class="form-container">
+        <h2 style="margin-top:0; color:#c9d1d9;">📦 List an Item for Sale</h2>
+        <form id="sellForm" onsubmit="createListing(event)">
+            <div class="form-group">
+                <label>Item Title</label>
+                <input type="text" id="title" placeholder="e.g. eFootball Pro Account" required>
+            </div>
+            <div class="form-group">
+                <label>Price (e.g. ₦2000)</label>
+                <input type="text" id="price" placeholder="₦2000" required>
+            </div>
+            <div class="form-group">
+                <label>Account Credentials / Details</label>
+                <textarea id="credentials" rows="3" placeholder="Email, Password, or transfer info for buyer" required></textarea>
+            </div>
+            <div class="form-group">
+                <label>Image URL (or screenshot link)</label>
+                <input type="text" id="image" placeholder="https://picsum.photos/400/200">
+            </div>
+            <button type="submit" class="btn-submit">Publish Listing</button>
+        </form>
     </div>
+
     <script>
-        let playerTags = [];
-
-        function addPlayerTag() {
-            let input = document.getElementById('playerInput');
-            let val = input.value.trim();
-            if (val && !playerTags.includes(val)) {
-                playerTags.push(val);
-                renderTags();
-                input.value = '';
-            }
-        }
-
-        function renderTags() {
-            let container = document.getElementById('playerTagsContainer');
-            container.innerHTML = playerTags.map(t => `<span class="tag-badge">${t}</span>`).join('');
-        }
-
-        document.getElementById('sellForm').addEventListener('submit', function(e) {
+        function createListing(e) {
             e.preventDefault();
-
             let currentUser = JSON.parse(localStorage.getItem('realonaCurrentUser') || 'null');
             if (!currentUser || !currentUser.email) {
-                alert('Please sign in first before listing an account!');
+                alert('Please sign in first.');
                 window.location.href = 'auth.html';
                 return;
             }
 
-            let division = document.getElementById('sellDivision').value;
-            let rating = document.getElementById('sellRating').value.trim();
-            let price = document.getElementById('sellPrice').value.trim();
-            let email = document.getElementById('sellEmail').value.trim();
-            let pass = document.getElementById('sellPass').value;
-            let fileInput = document.getElementById('sellImage');
+            let title = document.getElementById('title').value.trim();
+            let price = document.getElementById('price').value.trim();
+            let credentials = document.getElementById('credentials').value.trim();
+            let image = document.getElementById('image').value.trim() || 'https://picsum.photos/400/200';
 
-            if (!price.includes('₦')) price = '₦' + price;
-            let detailsString = `${rating} OVR • ${division}` + (playerTags.length ? ` • Top Players: ${playerTags.join(', ')}` : '');
+            let listings = JSON.parse(localStorage.getItem('realonaListings') || '[]');
+            
+            listings.push({
+                title: title,
+                price: price,
+                credentials: credentials,
+                image: image,
+                sellerEmail: currentUser.email,
+                status: 'Active'
+            });
 
-            function saveListingFinal(imgBase64) {
-                try {
-                    let newListing = {
-                        title: 'eFootball Pro Account',
-                        details: detailsString,
-                        price: price,
-                        status: 'Active',
-                        category: 'eFootball',
-                        sellerEmail: currentUser.email,
-                        sellerName: currentUser.username || 'Seller',
-                        image: imgBase64 || '',
-                        credentials: { email, pass }
-                    };
-
-                    let existingListings = JSON.parse(localStorage.getItem('realonaListings') || '[]');
-                    existingListings.unshift(newListing);
-                    localStorage.setItem('realonaListings', JSON.stringify(existingListings));
-
-                    alert('✅ Account listed successfully!');
-                    window.location.href = 'index.html';
-                } catch (err) {
-                    alert('Storage limit error. Publishing without image.');
-                    saveListingFinal('');
-                }
-            }
-
-            if (fileInput.files && fileInput.files[0]) {
-                let reader = new FileReader();
-                reader.onload = function(evt) {
-                    let img = new Image();
-                    img.onload = function() {
-                        let canvas = document.createElement('canvas');
-                        let ctx = canvas.getContext('2d');
-                        let maxDim = 700;
-                        let w = img.width;
-                        let h = img.height;
-                        if (w > h) { if (w > maxDim) { h *= maxDim / w; w = maxDim; } }
-                        else { if (h > maxDim) { w *= maxDim / h; h = maxDim; } }
-                        canvas.width = w;
-                        canvas.height = h;
-                        ctx.drawImage(img, 0, 0, w, h);
-                        saveListingFinal(canvas.toDataURL('image/jpeg', 0.5));
-                    };
-                    img.src = evt.target.result;
-                };
-                reader.readAsDataURL(fileInput.files[0]);
-            } else {
-                saveListingFinal('');
-            }
-        });
+            localStorage.setItem('realonaListings', JSON.stringify(listings));
+            alert('✅ Listing published successfully!');
+            window.location.href = 'dashboard.html';
+        }
     </script>
 </body>
 </html>
