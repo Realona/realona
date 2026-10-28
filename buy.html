@@ -114,7 +114,6 @@
         if (buyerEmail !== sellerEmail && existingTrade.status === 'In Escrow') {
             document.getElementById('buyerActionArea').style.display = 'block';
         }
-
         function loadChat() {
             let messages = JSON.parse(localStorage.getItem('realona_chat_' + tradeId) || '[]');
             let chatBox = document.getElementById('chatMessages');
