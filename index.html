@@ -3,103 +3,65 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Marketplace - Realona Exchange</title>
+    <title>Marketplace - Realona</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .market-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 20px; }
+        .item-card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
+        .item-img { width: 100%; height: 160px; object-fit: cover; background: #0d1117; border-bottom: 1px solid #30363d; }
+        .item-body { padding: 15px; display: flex; flex-direction: column; flex: 1; }
+        .item-title { font-size: 15px; font-weight: bold; color: #c9d1d9; margin-bottom: 6px; }
+        .item-price { color: #58a6ff; font-weight: bold; font-size: 16px; margin-bottom: 12px; }
+        .btn-buy { background: #238636; color: #fff; text-decoration: none; text-align: center; padding: 10px; border-radius: 6px; font-weight: bold; font-size: 13px; margin-top: auto; }
+    </style>
 </head>
 <body>
     <nav>
         <a href="index.html" style="color:#58a6ff;">Home</a>
-        <a href="sell.html">Sell Account</a>
+        <a href="sell.html">Sell</a>
         <a href="dashboard.html">Dashboard</a>
         <a href="wallet.html">Wallet</a>
-        <a href="auth.html" id="navAuthLink">Account</a>
+        <a href="auth.html">Account</a>
     </nav>
-    <div class="sell-container">
-        <h2>Marketplace Listings</h2>
+    <div style="max-width:900px; margin:20px auto; padding:0 15px;">
+        <h2 style="color:#c9d1d9; margin-bottom:5px;">🎮 Realona Escrow Marketplace</h2>
+        <p style="color:#8b949e; font-size:13px; margin-bottom:20px;">Buy and sell digital assets, gaming accounts, and services securely.</p>
 
-        <div style="background:#161b22; border:1px solid #30363d; padding:15px; border-radius:10px; margin-bottom:20px;">
-            <div style="display:flex; gap:8px; margin-bottom:12px;">
-                <button onclick="setCategory('eFootball')" id="catEF" style="background:#238636; color:#fff; border:none; padding:6px 12px; border-radius:6px; font-size:12px; font-weight:bold; cursor:pointer;">🎮 eFootball</button>
-                <button onclick="setCategory('Social')" id="catSOC" style="background:#21262d; color:#8b949e; border:1px solid #30363d; padding:6px 12px; border-radius:6px; font-size:12px; cursor:pointer;">📱 Social Media</button>
-            </div>
-            <input type="text" id="searchInput" oninput="filterListings()" placeholder="Search accounts..." style="width:100%; padding:10px; background:#0d1117; border:1px solid #30363d; color:#c9d1d9; border-radius:6px; margin-bottom:10px; box-sizing:border-box;">
-            <div style="display:flex; gap:10px;">
-                <select id="divisionFilter" onchange="filterListings()" style="flex:1; padding:8px; background:#0d1117; border:1px solid #30363d; color:#c9d1d9; border-radius:6px;">
-                    <option value="">All Divisions</option>
-                    <option value="Division 1">Division 1</option>
-                    <option value="Division 2">Division 2</option>
-                    <option value="Division 3">Division 3</option>
-                </select>
-                <input type="number" id="ratingFilter" oninput="filterListings()" placeholder="Min Rating (e.g. 3000)" style="flex:1; padding:8px; background:#0d1117; border:1px solid #30363d; color:#c9d1d9; border-radius:6px;">
-            </div>
-        </div>
-
-        <div id="listingsGrid"></div>
+        <div class="market-grid" id="marketplaceContainer"></div>
     </div>
+
     <script>
-        let currentCategory = 'eFootball';
-
-        function setCategory(cat) {
-            currentCategory = cat;
-            document.getElementById('catEF').style.background = cat === 'eFootball' ? '#238636' : '#21262d';
-            document.getElementById('catEF').style.color = cat === 'eFootball' ? '#fff' : '#8b949e';
-            document.getElementById('catSOC').style.background = cat === 'Social' ? '#238636' : '#21262d';
-            document.getElementById('catSOC').style.color = cat === 'Social' ? '#fff' : '#8b949e';
-            filterListings();
-        }
-
         function loadMarketplace() {
-            let currentUser = JSON.parse(localStorage.getItem('realonaCurrentUser') || '{}');
-            let navAuth = document.getElementById('navAuthLink');
-            if (currentUser.username) {
-                navAuth.innerText = '👤 ' + currentUser.username;
-            }
-
-            let defaultListings = [
-                { title: 'eFootball Pro Account', details: '3000 OVR • Division 3 • Top Player: Messi', price: '₦4,000', status: 'Active', category: 'eFootball', image: '' },
-                { title: 'eFootball Pro Account', details: '3000 OVR • Division 1 • Top Player: Ronaldo', price: '₦3,000', status: 'Active', category: 'eFootball', image: '' }
-            ];
-
-            let savedListings = JSON.parse(localStorage.getItem('realonaListings') || 'null');
-            if (!savedListings || savedListings.length === 0) {
-                localStorage.setItem('realonaListings', JSON.stringify(defaultListings));
-            }
-            filterListings();
-        }
-
-        function filterListings() {
             let listings = JSON.parse(localStorage.getItem('realonaListings') || '[]');
-            let search = document.getElementById('searchInput').value.toLowerCase();
-            let division = document.getElementById('divisionFilter').value;
-            let minRating = Number(document.getElementById('ratingFilter').value) || 0;
+            let activeListings = listings.map((item, idx) => ({ ...item, globalIndex: idx }))
+                                         .filter(item => item.status === 'Active' || !item.status);
 
-            let filtered = listings.map((item, index) => ({ ...item, originalIndex: index })).filter(item => {
-                let isNotSold = (!item.status || item.status === 'Active');
-                let matchesCat = !item.category || item.category === currentCategory;
-                let matchesSearch = (item.title + ' ' + item.details).toLowerCase().includes(search);
-                let matchesDiv = !division || item.details.includes(division);
-                return isNotSold && matchesCat && matchesSearch && matchesDiv;
-            });
+            let container = document.getElementById('marketplaceContainer');
 
-            let container = document.getElementById('listingsGrid');
-            if (filtered.length === 0) {
-                container.innerHTML = `<p style="color:#8b949e; text-align:center; padding: 20px;">No matching listings found.</p>`;
-            } else {
-                container.innerHTML = filtered.map((item) => {
-                    let imgSrc = item.image || 'https://via.placeholder.com/600x300/161b22/58a6ff?text=eFootball+Account';
-                    return `
-                        <div style="background:#161b22; border:1px solid #30363d; border-radius:12px; padding:15px; margin-bottom:15px;">
-                            <img src="${imgSrc}" style="width:100%; height:160px; object-fit:contain; background:#0d1117; border-radius:8px; margin-bottom:10px; border:1px solid #30363d;" alt="Account Image">
-                            <h3 style="margin:0 0 6px 0; font-size:16px; color:#c9d1d9;">${item.title}</h3>
-                            <p style="color:#8b949e; font-size:12px; margin:0 0 12px 0;">${item.details}</p>
-                            <div style="display:flex; justify-content:space-between; align-items:center;">
-                                <span style="font-size:18px; font-weight:bold; color:#58a6ff;">${item.price}</span>
-                                <a href="listing.html?id=${item.originalIndex}" style="background:#21262d; border:1px solid #30363d; color:#58a6ff; padding:6px 12px; border-radius:6px; font-size:12px; text-decoration:none;">View Listing →</a>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
+            if (activeListings.length === 0) {
+                container.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align:center; padding:40px 20px; color:#8b949e; background:#161b22; border:1px solid #30363d; border-radius:12px;">
+                        <h3>No Active Listings Available</h3>
+                        <p style="font-size:13px;">Be the first to list an item for sale on Realona!</p>
+                        <a href="sell.html" style="display:inline-block; margin-top:10px; background:#238636; color:#fff; padding:10px 16px; border-radius:6px; text-decoration:none; font-weight:bold; font-size:13px;">+ Create Listing</a>
+                    </div>
+                `;
+                return;
             }
+
+            container.innerHTML = activeListings.map(item => {
+                let imgSrc = (item.image && item.image.trim().length > 0) ? item.image : 'https://via.placeholder.com/300x160/0d1117/8b949e?text=No+Screenshot';
+                return `
+                    <div class="item-card">
+                        <img src="${imgSrc}" class="item-img" onerror="this.src='https://via.placeholder.com/300x160/0d1117/8b949e?text=Image+Load+Error'">
+                        <div class="item-body">
+                            <div class="item-title">${item.title}</div>
+                            <div class="item-price">${item.price}</div>
+                            <a href="buy.html?id=${item.globalIndex}" class="btn-buy">Buy / Open Escrow</a>
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
 
         loadMarketplace();

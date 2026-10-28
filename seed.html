@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Seed Fresh Listings</title>
+</head>
+<body style="background:#0d1117; color:#c9d1d9; font-family:sans-serif; text-align:center; padding-top:50px;">
+    <h2>🌱 Resetting & Seeding Clean Marketplace Data...</h2>
+    <script>
+        let demoUser = { username: "Realona Admin", email: "realonabusinessexchange@gmail.com", isAdmin: true };
+        localStorage.setItem("realonaCurrentUser", JSON.stringify(demoUser));
+        localStorage.setItem("realona_wallet_realonabusinessexchange@gmail.com", "25000");
+
+        let demoListings = [
+            {
+                title: "eFootball Pro Account (3000 OVR • Div 1)",
+                price: "₦2000",
+                sellerEmail: "realonabusinessexchange@gmail.com",
+                status: "Active",
+                credentials: "email: seller@test.com | pass: 123456",
+                image: "https://picsum.photos/400/200"
+            },
+            {
+                title: "Clash of Clans TH13 Maxed Heroes",
+                price: "₦5000",
+                sellerEmail: "realonabusinessexchange@gmail.com",
+                status: "Active",
+                credentials: "email: cocseller@test.com | pass: cocpass123",
+                image: "https://picsum.photos/400/201"
+            }
+        ];
+        localStorage.setItem("realonaListings", JSON.stringify(demoListings));
+        localStorage.removeItem("realona_trades");
+
+        alert("✅ Clean test listings with images generated successfully!");
+        window.location.href = "index.html";
+    </script>
+</body>
+</html>
